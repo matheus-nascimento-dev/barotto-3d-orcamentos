@@ -19,11 +19,11 @@ test("produto cadastrado usa seu preço unitário mesmo com custos diferentes no
   const quoteCosts = { ...config, fixed: 10000, markup: 10, markupWholesale: 8 };
   const retail = calculateItem(product, quoteCosts, "retail");
   const wholesale = calculateItem(product, quoteCosts, "wholesale");
-  assert.equal(retail.unitPrice, 13.86);
-  assert.equal(retail.total, 831.6);
-  assert.equal(wholesale.unitPrice, 9.24);
-  assert.equal(wholesale.total, 554.4);
-  assert.equal(retail.cost, 4.62);
+  assert.equal(retail.unitPrice, 4.95);
+  assert.equal(retail.total, 297);
+  assert.equal(wholesale.unitPrice, 3.3);
+  assert.equal(wholesale.total, 198);
+  assert.equal(retail.cost, 1.65);
 });
 
 test("exportação usa o preço cadastrado para o tipo selecionado sem expor a origem interna", () => {
@@ -65,6 +65,30 @@ const item = {
   price: null,
 };
 
+test("lote do PDF inclui energia uma vez e divide o custo completo entre cinco peças", () => {
+  const product = { ...item, grams: 16, hours: 0.5, filament: 120,
+    productionQuantity: 5, inputBasis: "batch", quantity: 5 };
+  const settings = { ...config, power: 360, kwh: 0.84, printer: 4500,
+    life: 20000, fixed: 0, packaging: 2.5, failure: 15 };
+  const result = calculateItem(product, settings);
+  assert.equal(result.batchCost, 5.39);
+  assert.equal(result.cost, 1.08);
+  assert.ok(Math.abs(result.energy * 5 - 0.1512) < 1e-10);
+  assert.equal(result.packaging * 5, 2.5);
+  assert.equal(result.orderCost, 5.39);
+  const withoutPower = calculateItem(product, { ...settings, power: 0 });
+  assert.equal(withoutPower.batchCost, 5.21);
+});
+
+test("rateio fixo do lote entra uma vez antes da divisão", () => {
+  const product = { ...item, grams: 0, hours: 0, productionQuantity: 5,
+    inputBasis: "batch", quantity: 5 };
+  const result = calculateItem(product, { ...config, fixed: 200, monthly: 100, packaging: 0, failure: 0 });
+  assert.equal(result.batchCost, 2);
+  assert.equal(result.fixed, 0.4);
+  assert.equal(result.cost, 0.4);
+});
+
 test("usar cadastro copia os dois preços e inicia com uma unidade solicitada, independente do lote", () => {
   const source = { ...item, productionQuantity: 10, inputBasis: "batch" };
   const settings = { ...config, markupWholesale: 2 };
@@ -75,8 +99,8 @@ test("usar cadastro copia os dois preços e inicia com uma unidade solicitada, i
   source.grams = 99999;
   settings.markup = 20;
   copied.quantity = 60;
-  assert.equal(calculateItem(copied, settings).total, 831.6);
-  assert.equal(calculateItem(copied, settings, "wholesale").total, 554.4);
+  assert.equal(calculateItem(copied, settings).total, 297);
+  assert.equal(calculateItem(copied, settings, "wholesale").total, 198);
 });
 
 test("preço fixo cadastrado é multiplicado pelas unidades solicitadas para ambos os clientes", () => {
@@ -400,7 +424,7 @@ test("lote divide material, tempo, acabamento e extras pela quantidade produzida
   assert.equal(result.total, 60);
   assert.equal(result.unitHours, 0.5);
 });
-test("embalagem e rateio fixo continuam por unidade dentro do lote", () => {
+test("cálculo anterior de embalagem e rateio por unidade pode ser preservado", () => {
   const result = calculateItem(
     {
       ...item,
@@ -408,6 +432,7 @@ test("embalagem e rateio fixo continuam por unidade dentro do lote", () => {
       hours: 5,
       productionQuantity: 10,
       inputBasis: "batch",
+      costVersion: 1,
       quantity: 3,
     },
     config,
@@ -469,8 +494,8 @@ test("proposta de lote mostra quantidade vendida e preços sem dados internos de
     config,
   );
   assert.equal(result.items[0].quantity, 4);
-  assert.equal(result.items[0].unitPrice, 13.86);
-  assert.equal(result.total, 55.44);
+  assert.equal(result.items[0].unitPrice, 4.95);
+  assert.equal(result.total, 19.8);
   assert.doesNotMatch(
     JSON.stringify(result),
     /batchCost|orderCost|productionQuantity|inputBasis/,
@@ -491,9 +516,25 @@ test("backup preserva quantidade produzida, base dos dados e quantidade vendida"
     draft: null,
   };
   const restored = parseBackup(JSON.stringify(data));
-  assert.deepEqual(restored, data);
+  assert.deepEqual(restored.catalog, data.catalog);
+  assert.deepEqual(restored.quotes[0].items[0], { ...product, costVersion: 1 });
   assert.equal(
     calculateQuote(restored.quotes[0], restored.settings).items[0].orderCost,
     18.48,
   );
+});
+
+test("orçamento antigo mantém preço e só aplica o custo completo do lote ao atualizar pelo cadastro", () => {
+  const product = { ...item, productionQuantity: 10, inputBasis: "batch", quantity: 60 };
+  const data = { version: 1, settings: config, catalog: [product],
+    quotes: [{ id: "q1", items: [{ ...product, catalogId: "p1", catalogPricing: config }] }], draft: null };
+  const restored = parseBackup(JSON.stringify(data));
+  assert.equal(calculateQuote(restored.quotes[0], config).total, 831.6);
+  const updated = catalogQuoteItem(restored.catalog[0], config, 60);
+  assert.equal(calculateItem(updated, config).total, 297);
+  restored.quotes[0].items = [updated];
+  const again = parseBackup(JSON.stringify(restored));
+  assert.equal(calculateQuote(again.quotes[0], config).total, 297);
+  again.quotes[0].items[0].costVersion = 3;
+  assert.throws(() => parseBackup(JSON.stringify(again)));
 });

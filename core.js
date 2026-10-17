@@ -88,19 +88,24 @@ export function calculateItem(
   if (!["unit", "batch"].includes(inputBasis))
     throw new Error("Escolha se os dados são do lote inteiro ou por unidade.");
   const divisor = inputBasis === "batch" ? productionQuantity : 1;
+  const costVersion = item.costVersion ?? 2;
+  if (![1, 2].includes(costVersion))
+    throw new Error("Versão do cálculo de custos inválida.");
+  const overheadDivisor = costVersion === 1 ? 1 : divisor;
   const grams = number(item.grams, "Peso", 0, 1e6) / divisor,
     hours = number(item.hours, "Tempo", 0, 100000) / divisor;
   const material = (grams / 1000) * number(item.filament, "Filamento");
-  const energy =
-    ((hours * number(s.power, "Potência")) / 1000) * number(s.kwh, "Energia");
+  const unitKwh = (hours * number(s.power, "Potência")) / 1000;
+  const energy = unitKwh * number(s.kwh, "Energia");
   const machine =
     (hours * number(s.printer, "Impressora")) / number(s.life, "Vida útil", 1);
   const fixed =
-    number(s.fixed, "Custo fixo") / number(s.monthly, "Unidades mensais", 1);
-  const packaging = number(s.packaging, "Embalagem");
+    number(s.fixed, "Custo fixo") / number(s.monthly, "Produções mensais", 1) / overheadDivisor;
+  const packaging = number(s.packaging, "Embalagem") / overheadDivisor;
   const labor =
     (number(item.minutes ?? 0, "Acabamento") / divisor / 60) *
     number(s.labor, "Hora de trabalho");
+  const extra = number(item.extra ?? 0, "Custo extra") / divisor;
   const base =
     material +
     energy +
@@ -108,7 +113,7 @@ export function calculateItem(
     fixed +
     packaging +
     labor +
-    number(item.extra ?? 0, "Custo extra") / divisor;
+    extra;
   const reserve = (base * number(s.failure, "Falhas", 0, 100)) / 100;
   const cost = round(base + reserve);
   const preciseCost = inputBasis === "batch" ? base + reserve : cost;
@@ -125,13 +130,16 @@ export function calculateItem(
     fixed,
     packaging,
     labor,
+    extra,
     reserve,
     cost,
     batchCost: round(preciseCost * productionQuantity),
     orderCost: round(preciseCost * quantity),
     productionQuantity,
     inputBasis,
+    costVersion,
     unitHours: hours,
+    unitKwh,
     unitGrams: grams,
     suggested,
     unitPrice,
@@ -147,6 +155,7 @@ export function catalogQuoteItem(product, settings = defaults, quantity = 1, id 
     quantity,
     catalogId: product.id,
     catalogPricing: normalizePricing(settings),
+    costVersion: 2,
   };
   calculateItem(result, settings, "retail");
   calculateItem(result, settings, "wholesale");
@@ -324,7 +333,12 @@ export function parseBackup(text) {
     )
       throw new Error("Configuração inválida no orçamento.");
     validateProduction(q.pricing ?? settings);
-    for (const i of q.items) validateItem(i, q.pricing ?? settings);
+    for (const i of q.items) {
+      // Older proposals used packaging and fixed overhead per piece.
+      if (i && i.costVersion === undefined && i.inputBasis === "batch")
+        i.costVersion = 1;
+      validateItem(i, q.pricing ?? settings);
+    }
     calculateQuote(q, q.pricing ?? settings);
   };
   for (const q of data.quotes) validateQuote(q);
