@@ -2,6 +2,8 @@
 
 Sistema de orçamentos de impressão 3D, em português, sem backend ou dependências de execução externas. Funciona no computador e no celular.
 
+Site: [Barotto 3D — Orçamentos](https://matheus-nascimento-dev.github.io/barotto-3d-orcamentos/).
+
 ## Executar localmente
 
 Requer Node.js 20 ou superior.
@@ -50,6 +52,6 @@ npm run check
 
 O workflow `.github/workflows/pages.yml` executa os testes e publica somente os seis arquivos da aplicação. Após disponibilizar o repositório no GitHub, ative **Settings → Pages → Source: GitHub Actions** e envie a branch `main`. Os caminhos relativos permitem hospedar em um subdiretório de GitHub Pages. O site permanece sem backend: os dados de cada usuário ficam no próprio navegador.
 
-Publicação remota aguardando avaliação da versão local pelo proprietário. Não há credenciais ou dados de clientes nos arquivos de código.
+Publicação no GitHub Pages autorizada após avaliação local. Não há credenciais ou dados de clientes nos arquivos de código.
 
 Referência funcional: https://calculesuaimpressao3d.netlify.app/. Interface e implementação próprias.

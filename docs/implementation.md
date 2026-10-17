@@ -14,4 +14,4 @@ Arquivos: core.js (cálculo e validação), app.js (interface e estado), proposa
 
 Validação: 14 testes automatizados e verificação de sintaxe aprovados. No navegador: dois produtos (PLA e PETG), quatro unidades, subtotal R$ 212,70, desconto R$ 12,70, frete R$ 15,00, total R$ 215,00; recarga e reabertura preservam valores. Proposta HTML baixada sem parâmetros internos, backup JSON baixado e restaurado, status e catálogo persistidos. Layout móvel inspecionado sem transbordamento horizontal. A impressão aciona o diálogo do navegador; o PDF final deve ser salvo nele. Revisão independente dos problemas de persistência e validação concluída.
 
-Limites: sem sincronização entre dispositivos; limpar o navegador apaga os dados sem backup. Não há envio de mensagem automático. Publicação depende de acesso GitHub e da avaliação local pelo usuário.
+Limites: sem sincronização entre dispositivos; limpar o navegador apaga os dados sem backup. Não há envio de mensagem automático. Publicação no GitHub Pages autorizada pelo usuário após avaliação local, em https://matheus-nascimento-dev.github.io/barotto-3d-orcamentos/.
