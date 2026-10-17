@@ -1,0 +1,16 @@
+{
+  "name": "3dorca",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Orçamentos de impressão 3D com armazenamento local e propostas para clientes",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check app.js && node --check core.js && node --check proposal.js && node --check server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
