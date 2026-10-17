@@ -76,8 +76,20 @@ export function calculateItem(
   const quantity = number(item.quantity, "Quantidade", 1, 100000);
   if (!Number.isInteger(quantity))
     throw new Error("Quantidade deve ser um número inteiro.");
-  const grams = number(item.grams, "Peso", 0, 1e6),
-    hours = number(item.hours, "Tempo", 0, 100000);
+  const productionQuantity = number(
+    item.productionQuantity ?? 1,
+    "Quantidade produzida",
+    1,
+    100000,
+  );
+  if (!Number.isInteger(productionQuantity))
+    throw new Error("Quantidade produzida deve ser um número inteiro.");
+  const inputBasis = item.inputBasis ?? "unit";
+  if (!["unit", "batch"].includes(inputBasis))
+    throw new Error("Escolha se os dados são do lote inteiro ou por unidade.");
+  const divisor = inputBasis === "batch" ? productionQuantity : 1;
+  const grams = number(item.grams, "Peso", 0, 1e6) / divisor,
+    hours = number(item.hours, "Tempo", 0, 100000) / divisor;
   const material = (grams / 1000) * number(item.filament, "Filamento");
   const energy =
     ((hours * number(s.power, "Potência")) / 1000) * number(s.kwh, "Energia");
@@ -87,7 +99,7 @@ export function calculateItem(
     number(s.fixed, "Custo fixo") / number(s.monthly, "Unidades mensais", 1);
   const packaging = number(s.packaging, "Embalagem");
   const labor =
-    (number(item.minutes ?? 0, "Acabamento") / 60) *
+    (number(item.minutes ?? 0, "Acabamento") / divisor / 60) *
     number(s.labor, "Hora de trabalho");
   const base =
     material +
@@ -96,9 +108,10 @@ export function calculateItem(
     fixed +
     packaging +
     labor +
-    number(item.extra ?? 0, "Custo extra");
+    number(item.extra ?? 0, "Custo extra") / divisor;
   const reserve = (base * number(s.failure, "Falhas", 0, 100)) / 100;
   const cost = round(base + reserve);
+  const preciseCost = inputBasis === "batch" ? base + reserve : cost;
   const markup = selectedMarkup(settings, customerType);
   const suggested = round(cost * markup);
   const unitPrice =
@@ -114,6 +127,12 @@ export function calculateItem(
     labor,
     reserve,
     cost,
+    batchCost: round(preciseCost * productionQuantity),
+    orderCost: round(preciseCost * quantity),
+    productionQuantity,
+    inputBasis,
+    unitHours: hours,
+    unitGrams: grams,
     suggested,
     unitPrice,
     total: round(unitPrice * quantity),
@@ -134,7 +153,7 @@ export function calculateQuote(quote, settings = defaults) {
   );
   const shipping = round(number(quote.shipping ?? 0, "Frete"));
   const net = round(subtotal - discount);
-  const cost = round(items.reduce((v, i) => v + i.cost * i.quantity, 0));
+  const cost = round(items.reduce((v, i) => v + i.orderCost, 0));
   const rate = ["tax", "card", "ads"].reduce(
     (v, k) => v + number(settings[k] ?? defaults[k], k, 0, 100),
     0,
@@ -153,10 +172,7 @@ export function calculateQuote(quote, settings = defaults) {
     profit,
     margin: net ? (profit / net) * 100 : 0,
     quantity: items.reduce((v, i) => v + i.quantity, 0),
-    hours: quote.items.reduce(
-      (v, i) => v + Number(i.hours) * Number(i.quantity),
-      0,
-    ),
+    hours: items.reduce((v, i) => v + i.unitHours * i.quantity, 0),
   };
 }
 export function publicQuote(quote, settings = defaults) {

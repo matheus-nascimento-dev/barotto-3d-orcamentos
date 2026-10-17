@@ -321,3 +321,123 @@ test("migração inicia os dois tipos com o markup anterior e restaura snapshots
     66,
   );
 });
+
+test("lote divide material, tempo, acabamento e extras pela quantidade produzida", () => {
+  const settings = { ...config, fixed: 0, packaging: 0, failure: 0 };
+  const result = calculateItem(
+    {
+      ...item,
+      grams: 100,
+      hours: 5,
+      minutes: 60,
+      extra: 8,
+      productionQuantity: 10,
+      inputBasis: "batch",
+      quantity: 4,
+    },
+    settings,
+  );
+  assert.equal(result.cost, 5);
+  assert.equal(result.batchCost, 50);
+  assert.equal(result.orderCost, 20);
+  assert.equal(result.unitPrice, 15);
+  assert.equal(result.total, 60);
+  assert.equal(result.unitHours, 0.5);
+});
+test("embalagem e rateio fixo continuam por unidade dentro do lote", () => {
+  const result = calculateItem(
+    {
+      ...item,
+      grams: 100,
+      hours: 5,
+      productionQuantity: 10,
+      inputBasis: "batch",
+      quantity: 3,
+    },
+    config,
+  );
+  assert.equal(result.cost, 4.62);
+  assert.equal(result.batchCost, 46.2);
+  assert.equal(result.orderCost, 13.86);
+});
+test("dados por unidade não são divididos pela quantidade do lote", () => {
+  const result = calculateItem(
+    { ...item, productionQuantity: 10, inputBasis: "unit" },
+    config,
+  );
+  assert.equal(result.cost, 16.5);
+  assert.equal(result.batchCost, 165);
+  assert.equal(result.orderCost, 33);
+});
+test("quantidade produzida é inteira positiva e a base de entrada deve ser conhecida", () => {
+  for (const productionQuantity of [0, -1, 1.5])
+    assert.throws(() => calculateItem({ ...item, productionQuantity }, config));
+  assert.throws(() => calculateItem({ ...item, inputBasis: "outro" }, config));
+});
+test("totais de custo do lote mantêm centavos reais sem multiplicar o custo unitário arredondado", () => {
+  const settings = {
+    ...config,
+    power: 0,
+    printer: 0,
+    fixed: 0,
+    packaging: 0,
+    failure: 0,
+  };
+  const quote = {
+    items: [
+      {
+        ...item,
+        grams: 1000,
+        filament: 100,
+        productionQuantity: 3,
+        inputBasis: "batch",
+        quantity: 3,
+      },
+    ],
+    discount: 0,
+    shipping: 0,
+  };
+  const result = calculateQuote(quote, settings);
+  assert.equal(result.items[0].cost, 33.33);
+  assert.equal(result.items[0].batchCost, 100);
+  assert.equal(result.cost, 100);
+  assert.equal(result.hours, 5);
+});
+test("proposta de lote mostra quantidade vendida e preços sem dados internos de produção", () => {
+  const result = publicQuote(
+    {
+      items: [
+        { ...item, productionQuantity: 10, inputBasis: "batch", quantity: 4 },
+      ],
+    },
+    config,
+  );
+  assert.equal(result.items[0].quantity, 4);
+  assert.equal(result.items[0].unitPrice, 13.86);
+  assert.equal(result.total, 55.44);
+  assert.doesNotMatch(
+    JSON.stringify(result),
+    /batchCost|orderCost|productionQuantity|inputBasis/,
+  );
+});
+test("backup preserva quantidade produzida, base dos dados e quantidade vendida", () => {
+  const product = {
+    ...item,
+    productionQuantity: 10,
+    inputBasis: "batch",
+    quantity: 4,
+  };
+  const data = {
+    version: 1,
+    settings: config,
+    quotes: [{ id: "q1", items: [product] }],
+    catalog: [product],
+    draft: null,
+  };
+  const restored = parseBackup(JSON.stringify(data));
+  assert.deepEqual(restored, data);
+  assert.equal(
+    calculateQuote(restored.quotes[0], restored.settings).items[0].orderCost,
+    18.48,
+  );
+});

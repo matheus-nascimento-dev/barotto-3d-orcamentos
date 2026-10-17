@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
 :root {
-  --bg: #f7f8f5;
-  --paper: #fff;
-  --ink: #263d33;
-  --muted: #748077;
-  --green: #204d3c;
-  --green-dark: #173e31;
-  --lime: #d7eac3;
-  --border: #e4e8df;
-  --soft: #eff3eb;
+  --bg: #f1f5f9;
+  --paper: #ffffff;
+  --ink: #0f172a;
+  --muted: #475569;
+  --green: #1d4ed8;
+  --green-dark: #1e40af;
+  --lime: #dbeafe;
+  --border: #cbd5e1;
+  --soft: #f8fafc;
   --radius: 12px;
   --font: "DM Sans", Arial, sans-serif;
   --display: "Manrope", Arial, sans-serif;
@@ -25,29 +25,29 @@
   gap: 6px;
 }
 .catalog-prices > div > span {
-  font-size: 11px;
-  color: #637356;
+  font-size: 12px;
+  color: #0f172a;
 }
 .catalog-prices strong {
   font: 650 21px var(--display);
   letter-spacing: -0.5px;
 }
 .fixed-price-note {
-  color: #637356;
+  color: #0f172a;
   display: block;
   margin: -12px 0 20px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .customer-pricing-hint {
   align-self: end;
-  font-size: 10px;
-  color: #637356;
+  font-size: 12px;
+  color: #0f172a;
   margin: 0 0 2px;
 }
 .summary-customer-type {
-  font-size: 11px;
-  color: #49673d;
-  background: #eff5e7;
+  font-size: 12px;
+  color: #0f172a;
+  background: #e9edf3;
   border-radius: 5px;
   padding: 8px 10px;
   margin: -10px 0 22px;
@@ -57,28 +57,28 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: #eaf1e1;
-  border: 1px solid #dce6cf;
+  background: #e2e7f0;
+  border: 1px solid #d0d8e5;
   border-radius: 8px;
   margin-bottom: 16px;
 }
 .export-customer > label {
-  color: #3e6036;
+  color: #0f172a;
   font-size: 12px;
   font-weight: 600;
 }
 .export-customer > select {
   background: #fff;
-  color: #34582e;
-  border: 1px solid #c5d6b3;
+  color: #0f172a;
+  border: 1px solid #9ebceb;
   border-radius: 5px;
   height: 40px;
   padding: 0 10px;
   font-size: 12px;
 }
 .export-customer > span {
-  font-size: 10px;
-  color: #637356;
+  font-size: 12px;
+  color: #0f172a;
   margin-left: auto;
   max-width: 240px;
 }
@@ -152,15 +152,15 @@ select {
 button:focus-visible,
 a:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #94b777;
+  outline: 3px solid #5387db;
   outline-offset: 4px;
 }
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: #749b76 !important;
-  box-shadow: 0 0 0 3px #e6f0df;
+  border-color: #3a75d5 !important;
+  box-shadow: 0 0 0 3px #e0e6ef;
 }
 button:disabled {
   opacity: 0.5;
@@ -210,26 +210,26 @@ button:disabled {
 .brand-name {
   font: 800 29px/1 var(--display);
   letter-spacing: -1.7px;
-  color: #244630;
+  color: #0f172a;
 }
 .brand-name > span {
   font-size: 16px;
   letter-spacing: -0.8px;
   margin-left: 3px;
-  color: #77955b;
+  color: #475569;
 }
 .brand-name small {
   font: 650 7.4px/1 var(--font);
   letter-spacing: 1.95px;
   display: block;
   margin: 8px 0 0 1px;
-  color: #7b8574;
+  color: #475569;
 }
 .workspace-label {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.7px;
   font-weight: 650;
-  color: #8a9385;
+  color: #475569;
   padding-left: 15px;
   margin-bottom: 15px;
 }
@@ -242,7 +242,7 @@ button:disabled {
   height: 47px;
   border-radius: 7px;
   padding: 0 14px;
-  color: #738071;
+  color: #475569;
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 7px;
@@ -252,20 +252,20 @@ button:disabled {
   height: 19px;
 }
 .nav-item:hover {
-  background: #f4f6ef;
+  background: #eff2f6;
   color: var(--green);
 }
 .nav-item.active {
-  background: #eaf1e3;
-  color: #315733;
+  background: #e4e9f0;
+  color: #0f172a;
   font-weight: 650;
 }
 .nav-count {
   margin-left: auto;
   border-radius: 5px;
-  background: #d9e6cc;
-  color: #4c6a37;
-  font-size: 10px;
+  background: #ced6e4;
+  color: #0f172a;
+  font-size: 12px;
   line-height: 20px;
   min-width: 23px;
   text-align: center;
@@ -282,21 +282,21 @@ button:disabled {
   gap: 9px;
   padding: 19px 8px 24px;
   border-bottom: 1px solid var(--border);
-  color: #607558;
+  color: #475569;
 }
 .local-note > .icon {
   width: 18px;
   margin-top: 1px;
 }
 .local-note strong {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
 }
 .local-note p {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
   margin: 5px 0 0;
-  color: #8a9182;
+  color: #475569;
 }
 .profile {
   width: 100%;
@@ -311,15 +311,15 @@ button:disabled {
   place-content: center;
   width: 34px;
   height: 34px;
-  background: #e9efdf;
-  border: 1px solid #d8e0cc;
-  color: #506844;
+  background: #e0e5ee;
+  border: 1px solid #cad3e2;
+  color: #0f172a;
   font: 700 15px/1 var(--display);
   border-radius: 8px;
   position: relative;
 }
 .avatar > span {
-  font-size: 7px;
+  font-size: 12px;
   position: absolute;
   bottom: 4px;
   right: 4px;
@@ -329,15 +329,15 @@ button:disabled {
 }
 .profile strong {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
 }
 .profile small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .profile > .icon {
   width: 15px;
-  color: #9ba494;
+  color: #475569;
 }
 .workspace {
   margin-left: 230px;
@@ -359,17 +359,17 @@ button:disabled {
   display: flex;
   gap: 14px;
   align-items: center;
-  font-size: 11px;
-  color: #8a9287;
+  font-size: 12px;
+  color: #475569;
 }
 .breadcrumb strong {
   font-weight: 500;
-  color: #4c594c;
+  color: #0f172a;
 }
 .breadcrumb .icon {
   width: 12px;
   height: 12px;
-  color: #a0a797;
+  color: #475569;
 }
 .topbar-right {
   display: flex;
@@ -380,23 +380,23 @@ button:disabled {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
-  font-size: 10px;
-  color: #718265;
+  font-size: 12px;
+  color: #475569;
   display: flex;
   gap: 6px;
   align-items: center;
-  background: #fbfcf9;
+  background: #f9fafc;
 }
 .status-dot {
   display: inline-block;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #76a15e;
+  background: #2d6cd2;
   flex-shrink: 0;
 }
 .topbar .icon-button {
-  color: #7e8a77;
+  color: #475569;
   width: 22px;
   height: 34px;
   min-width: 22px;
@@ -407,9 +407,9 @@ button:disabled {
   height: 30px;
   display: grid;
   place-items: center;
-  background: #e8eedf;
+  background: #dfe5ee;
   font: 700 11px var(--display);
-  color: #64804a;
+  color: #0f172a;
   border: 2px solid #fff;
 }
 main {
@@ -427,24 +427,24 @@ main {
   margin-bottom: 28px;
 }
 .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 2px;
-  color: #7e8d72;
+  color: #475569;
 }
 .page-head h1 {
   font: 750 32px/1.3 var(--display);
   letter-spacing: -1.35px;
   margin: 8px 0 9px;
-  color: #293d2d;
+  color: #0f172a;
 }
 .heading-dot {
-  color: #90ae70;
+  color: #475569;
 }
 .page-head p {
   margin: 0;
   font-size: 12px;
-  color: #8a9082;
+  color: #475569;
 }
 .page-actions {
   display: flex;
@@ -459,7 +459,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   padding: 0 16px;
   border-radius: 6px;
@@ -475,27 +475,27 @@ main {
   border-color: var(--green);
 }
 .button.primary:hover {
-  background: #123626;
-  box-shadow: 0 3px 8px #18452718;
+  background: #0d1f3b;
+  box-shadow: 0 3px 8px #10274d18;
 }
 .button.secondary {
   background: #fff;
-  border-color: #dfe5d8;
-  color: #526749;
+  border-color: #d5dce8;
+  color: #0f172a;
 }
 .button.secondary:hover {
-  background: #f4f7ef;
-  border-color: #bacbad;
+  background: #eff2f7;
+  border-color: #90b2e8;
 }
 .save-indicator {
   display: flex;
   gap: 6px;
   align-items: center;
-  font-size: 9px;
-  color: #93a084;
+  font-size: 12px;
+  color: #475569;
 }
 .save-indicator.unsaved {
-  color: #ab6d31;
+  color: #475569;
 }
 .workflow {
   height: 48px;
@@ -505,8 +505,8 @@ main {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   margin-bottom: 24px;
-  color: #a2aa9a;
-  font-size: 10px;
+  color: #475569;
+  font-size: 12px;
 }
 .workflow > span {
   display: flex;
@@ -520,22 +520,22 @@ main {
   width: 22px;
   height: 22px;
   font-weight: 500;
-  font-size: 9px;
-  background: #edf0e8;
+  font-size: 12px;
+  background: #e6ebf2;
   border-radius: 50%;
-  color: #8b987b;
+  color: #475569;
 }
 .workflow > .current {
-  color: #45683a;
+  color: #0f172a;
   font-weight: 600;
 }
 .workflow > .current b {
-  background: #dce9cd;
-  color: #52773b;
+  background: #d0d8e6;
+  color: #0f172a;
 }
 .workflow > i {
   height: 1px;
-  background: #d9e0d0;
+  background: #ccd5e4;
   width: 30px;
 }
 .workflow-end {
@@ -543,8 +543,8 @@ main {
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  font-size: 9px;
-  color: #9da591;
+  font-size: 12px;
+  color: #475569;
 }
 .workflow-end .icon {
   width: 13px;
@@ -554,20 +554,20 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #edf2e7;
-  border: 1px solid #e1e9d7;
+  background: #e7ebf2;
+  border: 1px solid #d7dee9;
   padding: 11px 15px;
   border-radius: 7px;
-  color: #7a886a;
+  color: #475569;
   margin-bottom: 24px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .example-banner > .icon {
-  color: #90a674;
+  color: #475569;
   width: 17px;
 }
 .example-banner strong {
-  color: #60784d;
+  color: #0f172a;
   font-weight: 600;
 }
 .example-banner > button {
@@ -575,10 +575,10 @@ main {
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   margin-left: auto;
-  color: #60794a;
+  color: #0f172a;
 }
 .example-banner button .icon {
   width: 14px;
@@ -623,14 +623,14 @@ main {
 .panel-heading .icon {
   width: 17px;
   height: 17px;
-  color: #82926f;
+  color: #475569;
 }
 .section-icon {
   display: inline-flex;
 }
 .quiet {
-  font-size: 9px;
-  color: #9ba18f;
+  font-size: 12px;
+  color: #475569;
 }
 .client-panel,
 .details-panel {
@@ -646,8 +646,8 @@ main {
   flex-direction: column;
   min-width: 0;
   gap: 6px;
-  color: #62715b;
-  font-size: 10px;
+  color: #475569;
+  font-size: 12px;
   font-weight: 500;
 }
 .field > span {
@@ -655,18 +655,18 @@ main {
 }
 .field em {
   font-style: normal;
-  color: #9cac85;
-  font-size: 10px;
+  color: #475569;
+  font-size: 12px;
   margin-left: 4px;
 }
 .field.wide {
   grid-column: 1/-1;
 }
 .field small {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   font-weight: 400;
-  color: #9ba28f;
+  color: #475569;
 }
 .input-wrap {
   position: relative;
@@ -679,17 +679,17 @@ main {
 .field > select {
   width: 100%;
   background: #fff;
-  border: 1px solid #e2e7db;
+  border: 1px solid #d8dfea;
   border-radius: 5px;
   height: 37px;
   padding: 0 10px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
-  color: #54624c;
+  color: #0f172a;
   min-width: 0;
 }
 .field input::placeholder {
-  color: #a4aa99;
+  color: #475569;
 }
 .field textarea {
   min-height: 67px;
@@ -705,9 +705,9 @@ main {
   right: 11px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 400;
-  color: #9aa38d;
+  color: #475569;
   pointer-events: none;
 }
 .field input[type="number"] {
@@ -734,14 +734,14 @@ main {
   align-items: center;
 }
 .section-title p {
-  color: #99a08e;
-  font-size: 10px;
+  color: #475569;
+  font-size: 12px;
   margin: 5px 0 0;
 }
 .count-badge {
   font: 500 10px var(--font);
-  background: #e9eee1;
-  color: #7b8c67;
+  background: #e0e6ef;
+  color: #475569;
   border-radius: 5px;
   display: grid;
   place-items: center;
@@ -752,8 +752,8 @@ main {
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  font-size: 10px;
-  color: #70865a;
+  font-size: 12px;
+  color: #475569;
   font-weight: 500;
   padding: 4px 0;
 }
@@ -762,7 +762,7 @@ main {
   height: 14px;
 }
 .text-button:hover {
-  color: #2a4e24;
+  color: #0f172a;
 }
 .product-card {
   background: #fff;
@@ -783,7 +783,7 @@ main {
 }
 .product-art {
   display: block;
-  background: #edf2e5;
+  background: #e6eaf1;
   border-radius: 8px;
   width: 68px;
   height: 68px;
@@ -794,7 +794,7 @@ main {
   height: 100%;
 }
 .product-art.art-1 {
-  background: #eceee7;
+  background: #e4e9f1;
 }
 .product-identity {
   display: flex;
@@ -804,8 +804,8 @@ main {
   min-width: 0;
 }
 .product-number {
-  font-size: 8px;
-  color: #a0aa90;
+  font-size: 12px;
+  color: #475569;
   letter-spacing: 1.2px;
   font-weight: 500;
 }
@@ -815,12 +815,12 @@ main {
   overflow-wrap: anywhere;
 }
 .product-meta {
-  font-size: 9px;
-  color: #8c9681;
+  font-size: 12px;
+  color: #475569;
 }
 .product-meta > span {
   margin: 0 4px;
-  color: #acb69a;
+  color: #475569;
 }
 .product-head-price {
   text-align: right;
@@ -833,12 +833,12 @@ main {
   display: block;
 }
 .product-head-price small {
-  font-size: 9px;
-  color: #9aa28d;
+  font-size: 12px;
+  color: #475569;
 }
 .expand-icon {
   margin-left: 6px;
-  color: #99a38b;
+  color: #475569;
 }
 .expand-icon .icon {
   width: 16px;
@@ -850,7 +850,7 @@ main {
 }
 .product-content {
   padding: 0 22px 0;
-  border-top: 1px solid #f2f4ef;
+  border-top: 1px solid #edf1f6;
 }
 .product-content > .form-grid {
   padding-top: 19px;
@@ -863,8 +863,8 @@ main {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #99a38c;
-  font-size: 9px;
+  color: #475569;
+  font-size: 12px;
   margin: 19px 0 -8px;
 }
 .unit-hint .icon {
@@ -873,14 +873,14 @@ main {
 }
 .unit-hint strong {
   font-weight: 500;
-  color: #7a8a6b;
+  color: #475569;
 }
 .extra-costs {
   margin-top: 17px;
 }
 .extra-costs > summary {
-  color: #8a9b77;
-  font-size: 9px;
+  color: #475569;
+  font-size: 12px;
   list-style: none;
   display: flex;
   align-items: center;
@@ -899,39 +899,39 @@ main {
   justify-content: space-between;
   align-items: center;
   gap: 15px;
-  border-top: 1px solid #edf0e8;
+  border-top: 1px solid #e6ebf2;
   margin-top: 15px;
   padding: 17px 0;
 }
 .product-price-row .label {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  color: #657b50;
+  color: #0f172a;
 }
 .price-help {
   display: block;
-  font-size: 9px;
-  color: #93a27c;
+  font-size: 12px;
+  color: #475569;
   margin-top: 5px;
 }
 .price-help > span {
-  color: #abb49c;
+  color: #475569;
   margin-left: 4px;
 }
 .price-input {
   display: flex;
   width: 110px;
   height: 38px;
-  border: 1px solid #dde7d1;
+  border: 1px solid #d2dae7;
   border-radius: 5px;
   align-items: center;
-  background: #f5f9ef;
+  background: #f1f3f7;
   overflow: hidden;
 }
 .price-input > span {
-  font-size: 10px;
-  color: #869973;
+  font-size: 12px;
+  color: #475569;
   padding: 0 0 0 10px;
 }
 .price-input input {
@@ -943,14 +943,14 @@ main {
   text-align: right;
   font-weight: 650;
   font-size: 13px;
-  color: #506b3b;
+  color: #0f172a;
   appearance: textfield;
   -moz-appearance: textfield;
   height: 100%;
   outline: none;
 }
 .price-input input::placeholder {
-  color: #506b3b;
+  color: #0f172a;
   opacity: 1;
 }
 .price-input input::-webkit-inner-spin-button {
@@ -962,18 +962,18 @@ main {
   align-items: center;
   margin: 0 -22px;
   padding: 9px 20px;
-  background: #fcfdfa;
-  border-top: 1px solid #eef1e8;
+  background: #fafbfd;
+  border-top: 1px solid #e7ebf2;
 }
 .product-actions .text-button {
-  font-size: 9px;
-  color: #8b9b76;
+  font-size: 12px;
+  color: #475569;
 }
 .product-actions .icon-button {
   height: 26px;
   width: 29px;
   min-width: 29px;
-  color: #a1ad93;
+  color: #475569;
 }
 .product-actions .icon {
   width: 13px;
@@ -990,25 +990,25 @@ main {
   padding: 0;
 }
 .icon-button:hover {
-  background: #edf2e5;
-  color: #547741;
+  background: #e6eaf1;
+  color: #0f172a;
 }
 .icon-button.danger:hover {
   background: #f8e9e4;
-  color: #b76042;
+  color: #475569;
 }
 .add-product {
   width: 100%;
-  border: 1px dashed #c7d6b6;
+  border: 1px dashed #a1bdeb;
   border-radius: 8px;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #708a59;
-  background: #f3f7ed;
-  font-size: 11px;
+  color: #475569;
+  background: #eef1f6;
+  font-size: 12px;
   font-weight: 500;
 }
 .add-product > .icon {
@@ -1016,26 +1016,26 @@ main {
   height: 17px;
 }
 .add-product > span {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 400;
-  color: #9eab8e;
+  color: #475569;
   margin-left: 7px;
 }
 .add-product:hover {
-  background: #eaf1e1;
-  border-color: #91ad71;
+  background: #e2e7f0;
+  border-color: #467ed8;
 }
 .conditions-details {
   margin-top: 18px;
-  border-top: 1px solid #edf0e8;
+  border-top: 1px solid #e6ebf2;
   padding-top: 10px;
 }
 .conditions-details summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10px;
-  color: #889c75;
+  font-size: 12px;
+  color: #475569;
   list-style: none;
 }
 .conditions-details summary .icon {
@@ -1065,36 +1065,36 @@ main {
 .summary-icon .icon {
   width: 17px;
   height: 17px;
-  color: #a3af90;
+  color: #475569;
 }
 .summary-items {
   display: flex;
   flex-direction: column;
   gap: 15px;
   padding-bottom: 22px;
-  border-bottom: 1px solid #e8eddf;
+  border-bottom: 1px solid #dfe4ee;
 }
 .summary-items > div {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .summary-items span {
-  color: #819071;
+  color: #475569;
   max-width: 67%;
   overflow-wrap: anywhere;
 }
 .summary-items span small {
-  font-size: 9px;
-  color: #a4ae97;
+  font-size: 12px;
+  color: #475569;
   display: inline-block;
   margin-left: 3px;
 }
 .summary-items strong {
   font-weight: 500;
   white-space: nowrap;
-  color: #5f7350;
+  color: #0f172a;
 }
 .summary-breakdown {
   padding: 18px 0 20px;
@@ -1106,37 +1106,37 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 10px;
-  color: #8f9c80;
+  font-size: 12px;
+  color: #475569;
 }
 .summary-breakdown small {
-  font-size: 9px;
+  font-size: 12px;
 }
 .summary-breakdown b {
   font-weight: 400;
-  color: #738562;
+  color: #475569;
 }
 .total-block {
-  background: #f0f5e8;
-  border: 1px solid #e1ead5;
+  background: #eaedf3;
+  border: 1px solid #d6dde9;
   border-radius: 7px;
   padding: 21px 17px 16px;
 }
 .total-block > span {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.3px;
   font-weight: 600;
-  color: #809468;
+  color: #475569;
 }
 .total-block > div {
   font: 750 34px/1.5 var(--display);
-  color: #3f5a2c;
+  color: #0f172a;
   letter-spacing: -1.4px;
   margin: 0 0 5px;
 }
 .total-block > small {
-  color: #8a9d76;
-  font-size: 9px;
+  color: #475569;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1156,7 +1156,7 @@ main {
   height: 43px;
 }
 .summary-buttons .primary {
-  background: #244f37;
+  background: #14315f;
 }
 .summary-buttons .primary > .icon:last-child {
   margin-left: auto;
@@ -1167,19 +1167,19 @@ main {
 }
 .summary-buttons .primary {
   gap: 3px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .summary-buttons .secondary {
-  font-size: 10px;
-  color: #7e936c;
+  font-size: 12px;
+  color: #475569;
 }
 .privacy-note {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 8px;
-  color: #a7b199;
+  font-size: 12px;
+  color: #475569;
   margin-top: 15px;
   white-space: nowrap;
 }
@@ -1192,17 +1192,17 @@ main {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 15px 16px;
-  background: #f8faf5;
-  font-size: 10px;
-  color: #879976;
+  background: #f5f7fa;
+  font-size: 12px;
+  color: #475569;
 }
 .internal-costs summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   list-style: none;
-  font-size: 9px;
-  color: #829771;
+  font-size: 12px;
+  color: #475569;
 }
 .internal-costs summary > span {
   display: flex;
@@ -1222,43 +1222,43 @@ main {
   justify-content: space-between;
   gap: 10px;
   margin-top: 12px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .internal-costs b {
   font-weight: 500;
 }
 .internal-costs p {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.8;
-  color: #9aa88a;
+  color: #475569;
   border-top: 1px solid var(--border);
   padding-top: 10px;
 }
 .internal-costs .text-button {
-  font-size: 9px;
+  font-size: 12px;
 }
 .positive {
-  color: #4f7e39;
+  color: #0f172a;
 }
 .negative {
-  color: #b96e43;
+  color: #475569;
 }
 .tip-card {
   display: flex;
   gap: 12px;
   margin-top: 25px;
   padding: 0 4px;
-  color: #9ba78b;
+  color: #475569;
 }
 .tip-card > span {
   border-radius: 50%;
-  background: #eaf0df;
+  background: #e0e6ef;
   width: 33px;
   height: 33px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  color: #8a9f73;
+  color: #475569;
 }
 .tip-card > span .icon {
   width: 16px;
@@ -1266,16 +1266,16 @@ main {
 }
 .tip-card strong {
   font: 650 11px var(--display);
-  color: #7c9165;
+  color: #475569;
 }
 .tip-card p {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.9;
   margin: 6px 0 4px;
 }
 .tip-card .text-button {
-  font-size: 9px;
-  color: #8b9e75;
+  font-size: 12px;
+  color: #475569;
 }
 .app-footer {
   padding: 20px 38px;
@@ -1283,12 +1283,12 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  color: #a5ad9c;
-  font-size: 9px;
+  color: #475569;
+  font-size: 12px;
 }
 .footer-dot {
   padding: 0 7px;
-  color: #acb49f;
+  color: #475569;
 }
 .list-toolbar {
   display: flex;
@@ -1309,8 +1309,8 @@ main {
   border: 1px solid var(--border);
   border-radius: 7px;
   padding: 0 12px 0 38px;
-  font-size: 11px;
-  color: #607355;
+  font-size: 12px;
+  color: #0f172a;
   background: white;
 }
 .search-field > .icon {
@@ -1318,7 +1318,7 @@ main {
   left: 12px;
   width: 16px;
   height: 16px;
-  color: #9ca88d;
+  color: #475569;
 }
 .list-toolbar > select,
 .proposal-toolbar select {
@@ -1327,8 +1327,8 @@ main {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0 10px;
-  color: #6d7b63;
-  font-size: 11px;
+  color: #475569;
+  font-size: 12px;
 }
 .list-toolbar > .quiet {
   margin-left: auto;
@@ -1340,14 +1340,14 @@ main {
   border-collapse: collapse;
   text-align: left;
   width: 100%;
-  font-size: 11px;
+  font-size: 12px;
 }
 .history-table thead {
-  background: #f9fbf5;
-  font-size: 9px;
+  background: #f6f8fa;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #97a48b;
+  color: #475569;
 }
 .history-table th {
   font-weight: 500;
@@ -1357,8 +1357,8 @@ main {
 }
 .history-table td {
   padding: 20px 18px;
-  border-bottom: 1px solid #f0f3ec;
-  color: #76886a;
+  border-bottom: 1px solid #ebeef4;
+  color: #475569;
   white-space: nowrap;
 }
 .history-table tr:last-child td {
@@ -1367,12 +1367,12 @@ main {
 .history-table td > small {
   display: block;
   margin-top: 4px;
-  font-size: 9px;
-  color: #a0aa93;
+  font-size: 12px;
+  color: #475569;
 }
 .table-link {
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0;
   color: var(--green);
 }
@@ -1396,25 +1396,25 @@ main {
   display: inline-flex;
   padding: 4px 8px;
   border-radius: 5px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
 }
 .status-tag.draft {
-  background: #eff1e9;
-  color: #8f9b81;
+  background: #e8ecf2;
+  color: #475569;
 }
 .status-tag.sent {
   background: #ecf0fa;
-  color: #738aab;
+  color: #475569;
 }
 .status-tag.approved {
-  background: #e7f1dd;
-  color: #70914d;
+  background: #e0e5ee;
+  color: #475569;
 }
 .status-tag.declined {
   background: #f8eae3;
-  color: #b08269;
+  color: #475569;
 }
 .empty-state {
   text-align: center;
@@ -1422,14 +1422,14 @@ main {
   min-height: 310px;
 }
 .empty-icon {
-  background: #eff4e7;
+  background: #e8ecf3;
   display: grid;
   place-items: center;
   width: 60px;
   height: 60px;
   border-radius: 17px;
   margin: 0 auto 20px;
-  color: #8ba570;
+  color: #475569;
 }
 .empty-icon .icon {
   width: 28px;
@@ -1442,7 +1442,7 @@ main {
 }
 .empty-state p {
   font-size: 12px;
-  color: #93a084;
+  color: #475569;
   margin-bottom: 24px;
 }
 .overview-banner {
@@ -1451,8 +1451,8 @@ main {
   align-items: center;
   border-radius: 14px;
   overflow: hidden;
-  background: #eaf0e0;
-  border: 1px solid #e0e8d4;
+  background: #e1e6ef;
+  border: 1px solid #d4dce8;
   margin-bottom: 24px;
   padding: 35px 45px;
 }
@@ -1463,7 +1463,7 @@ main {
 }
 .overview-banner p {
   font-size: 12px;
-  color: #8b9c78;
+  color: #475569;
   margin-bottom: 25px;
 }
 .hero-object {
@@ -1474,7 +1474,7 @@ main {
 .hero-object > svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 15px 8px #3f5f2920);
+  filter: drop-shadow(0 15px 8px #183a7020);
 }
 .metrics {
   display: grid;
@@ -1486,8 +1486,8 @@ main {
   padding: 23px;
 }
 .metric > span {
-  font-size: 11px;
-  color: #8a9b7a;
+  font-size: 12px;
+  color: #475569;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -1503,8 +1503,8 @@ main {
   margin: 16px 0 7px;
 }
 .metric small {
-  font-size: 10px;
-  color: #a3ae96;
+  font-size: 12px;
+  color: #475569;
 }
 .recent-grid {
   display: grid;
@@ -1523,16 +1523,16 @@ main {
   gap: 10px;
 }
 .recent-card small {
-  font-size: 9px;
-  color: #9aab89;
+  font-size: 12px;
+  color: #475569;
 }
 .recent-card h3 {
   font: 650 15px var(--display);
   margin: 24px 0 5px;
 }
 .recent-card p {
-  font-size: 11px;
-  color: #99a98a;
+  font-size: 12px;
+  color: #475569;
 }
 .recent-card > strong {
   font: 650 24px var(--display);
@@ -1544,17 +1544,17 @@ main {
   position: absolute;
   right: 24px;
   bottom: 27px;
-  color: #8da878;
+  color: #475569;
 }
 .recent-card:hover {
-  border-color: #b2c69b;
-  background: #fcfff7;
+  border-color: #7da5e4;
+  background: #fafbfc;
 }
 .info-strip {
-  font-size: 11px;
-  color: #8ca074;
-  background: #edf3e4;
-  border: 1px solid #e3ecd7;
+  font-size: 12px;
+  color: #475569;
+  background: #e6eaf1;
+  border: 1px solid #d9dfea;
   border-radius: 8px;
   padding: 13px 16px;
   display: flex;
@@ -1573,7 +1573,7 @@ main {
 }
 .catalog-art {
   height: 170px;
-  background: #f1f5e9;
+  background: #eaeef4;
   display: grid;
   place-items: center;
 }
@@ -1590,14 +1590,14 @@ main {
   margin: 10px 0;
 }
 .catalog-card .eyebrow {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.3px;
 }
 .catalog-meta {
   display: flex;
   gap: 15px;
-  color: #98a78b;
-  font-size: 10px;
+  color: #475569;
+  font-size: 12px;
 }
 .catalog-card-content > strong {
   display: block;
@@ -1607,7 +1607,7 @@ main {
 }
 .catalog-card strong small {
   font: 400 10px var(--font);
-  color: #a2ae95;
+  color: #475569;
 }
 .catalog-actions {
   display: flex;
@@ -1616,7 +1616,7 @@ main {
 }
 .catalog-actions > .button {
   flex: 1;
-  font-size: 9px;
+  font-size: 12px;
   padding: 0 9px;
 }
 .catalog-actions .icon-button {
@@ -1645,26 +1645,26 @@ main {
   padding: 24px;
 }
 .section-description {
-  font-size: 11px;
-  color: #9aa78b;
+  font-size: 12px;
+  color: #475569;
   margin: -8px 0 25px;
   line-height: 1.8;
 }
 .settings-section .field {
-  font-size: 11px;
+  font-size: 12px;
 }
 .settings-section .field input {
   font-size: 12px;
   height: 41px;
 }
 .formula-note {
-  background: #f4f7ed;
+  background: #eef1f6;
   border-radius: 6px;
   padding: 14px 15px;
   margin-top: 23px;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.9;
-  color: #8ca272;
+  color: #475569;
 }
 .backup-card {
   padding: 27px 24px;
@@ -1672,8 +1672,8 @@ main {
 .backup-card .large-icon {
   display: grid;
   place-items: center;
-  background: #edf4e2;
-  color: #8aa867;
+  background: #e5eaf1;
+  color: #475569;
   width: 46px;
   height: 46px;
   border-radius: 12px;
@@ -1684,8 +1684,8 @@ main {
   letter-spacing: -0.7px;
 }
 .backup-card p {
-  font-size: 11px;
-  color: #97a98a;
+  font-size: 12px;
+  color: #475569;
   line-height: 1.9;
   margin-bottom: 25px;
 }
@@ -1695,8 +1695,8 @@ main {
 }
 .backup-card > small {
   display: block;
-  font-size: 9px;
-  color: #a1ae95;
+  font-size: 12px;
+  color: #475569;
   line-height: 1.9;
   margin-top: 15px;
 }
@@ -1704,13 +1704,13 @@ main {
   margin-top: 14px;
   border: 1px solid #ebd8b4;
   background: #fff8e9;
-  color: #a48858;
+  color: #475569;
   border-radius: 6px;
   padding: 12px 15px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .form-error {
-  color: #b06544;
+  color: #475569;
   font-size: 12px;
   line-height: 1.7;
 }
@@ -1720,11 +1720,11 @@ main {
   left: 50%;
   transform: translate(-50%, 10px);
   padding: 14px 22px;
-  border: 1px solid #486641;
-  background: #244d35;
+  border: 1px solid #1d478a;
+  background: #14305d;
   color: white;
   font-size: 12px;
-  box-shadow: 0 7px 30px #26412c25;
+  box-shadow: 0 7px 30px #122c5525;
   border-radius: 8px;
   z-index: 100;
   opacity: 0;
@@ -1745,14 +1745,14 @@ main {
 }
 #storage-warning {
   background: #fff1d8;
-  color: #956f31;
+  color: #475569;
   padding: 14px 25px;
   font-size: 12px;
   position: relative;
   z-index: 50;
 }
 dialog {
-  border: 1px solid #d9e3ce;
+  border: 1px solid #cdd6e4;
   border-radius: 14px;
   background: #fff;
   color: var(--ink);
@@ -1760,10 +1760,10 @@ dialog {
   max-width: min(630px, calc(100vw - 30px));
   max-height: 90vh;
   width: 100%;
-  box-shadow: 0 25px 90px #17372130;
+  box-shadow: 0 25px 90px #0e214030;
 }
 dialog::backdrop {
-  background: #1d332985;
+  background: #0e224285;
   backdrop-filter: blur(3px);
 }
 .modal-heading {
@@ -1779,13 +1779,13 @@ dialog::backdrop {
   margin: 0;
 }
 .modal-heading p {
-  font-size: 11px;
-  color: #94a085;
+  font-size: 12px;
+  color: #475569;
   margin: 8px 0 0;
   line-height: 1.8;
 }
 .modal-heading .icon-button {
-  color: #94a187;
+  color: #475569;
   width: 26px;
   min-width: 26px;
   height: 26px;
@@ -1805,12 +1805,12 @@ dialog::backdrop {
 .confirm-description {
   font-size: 13px;
   line-height: 1.9;
-  color: #859778;
+  color: #475569;
 }
 .help-list {
   padding-left: 24px;
   margin: 0;
-  color: #8b9c7b;
+  color: #475569;
 }
 .help-list li {
   padding: 10px 0 12px 8px;
@@ -1818,14 +1818,14 @@ dialog::backdrop {
 }
 .help-list strong {
   display: block;
-  color: #4f7040;
+  color: #0f172a;
   margin-bottom: 4px;
 }
 .help-foot {
   padding-top: 20px;
   border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: #97a68b;
+  font-size: 12px;
+  color: #475569;
   line-height: 1.8;
 }
 .catalog-picker > button:not(.button) {
@@ -1839,9 +1839,9 @@ dialog::backdrop {
 }
 .catalog-picker > button > span {
   padding: 12px;
-  background: #f0f5e8;
+  background: #eaedf3;
   border-radius: 8px;
-  color: #8fa876;
+  color: #475569;
 }
 .catalog-picker > button > div {
   flex: 1;
@@ -1852,22 +1852,22 @@ dialog::backdrop {
 }
 .catalog-picker small {
   display: block;
-  font-size: 10px;
-  color: #9bac8b;
+  font-size: 12px;
+  color: #475569;
   margin-top: 5px;
 }
 .catalog-picker > button > .icon {
-  color: #93aa7b;
+  color: #475569;
 }
 .catalog-picker p {
   font-size: 12px;
   line-height: 1.9;
-  color: #95a387;
+  color: #475569;
 }
 .proposal-dialog {
   max-width: 1050px;
   padding: 23px 26px 0;
-  background: #f5f7f2;
+  background: #f1f4f8;
   max-height: 95vh;
 }
 .proposal-toolbar {
@@ -1879,14 +1879,14 @@ dialog::backdrop {
   padding-top: 15px;
 }
 .proposal-toolbar > label {
-  font-size: 10px;
-  color: #819371;
+  font-size: 12px;
+  color: #475569;
   display: flex;
   align-items: center;
   gap: 7px;
 }
 .proposal-toolbar select {
-  font-size: 10px;
+  font-size: 12px;
   height: 36px;
 }
 .proposal-toolbar > div {
@@ -1894,7 +1894,7 @@ dialog::backdrop {
   gap: 8px;
 }
 .proposal-toolbar .button {
-  font-size: 9px;
+  font-size: 12px;
   height: 36px;
   padding: 0 12px;
 }
@@ -1904,8 +1904,8 @@ dialog::backdrop {
 }
 .proposal-preview .proposal-paper {
   margin: 25px auto 0;
-  border: 1px solid #e3e9db;
-  box-shadow: 0 5px 22px #26391a05;
+  border: 1px solid #d9e0eb;
+  box-shadow: 0 5px 22px #0f234405;
 }
 .print-frame {
   position: fixed;
@@ -1921,7 +1921,7 @@ dialog::backdrop {
   border: 1px solid var(--border);
   padding: 15px;
   line-height: 1.7;
-  color: #60754e;
+  color: #0f172a;
   font-size: 12px;
 }
 /* Stronger secondary text keeps small controls readable on light surfaces. */
@@ -1934,7 +1934,7 @@ dialog::backdrop {
 .backup-card p,
 .tip-card p,
 .empty-state p {
-  color: #78856c;
+  color: #475569;
 }
 .quiet,
 .unit,
@@ -1955,58 +1955,58 @@ dialog::backdrop {
 .product-meta,
 .unit-hint,
 .list-toolbar > .quiet {
-  color: #79866b;
+  color: #475569;
 }
 .summary-items strong {
-  color: #566b45;
+  color: #0f172a;
 }
 .summary-breakdown > div {
-  color: #78866b;
+  color: #475569;
 }
 .example-banner {
-  color: #738262;
+  color: #475569;
 }
 .total-block > span,
 .total-block > small,
 .summary-buttons .secondary {
-  color: #6b8153;
+  color: #475569;
 }
 .tip-card strong {
-  color: #687e51;
+  color: #475569;
 }
 .field > span {
-  color: #5f7151;
+  color: #0f172a;
 }
 .nav-item {
-  color: #6c7a63;
+  color: #475569;
 }
 .workflow {
-  color: #7c8b6c;
+  color: #475569;
 }
 .workflow-end {
-  color: #7e8d6e;
+  color: #475569;
 }
 .workflow b {
-  color: #7a8969;
+  color: #475569;
 }
 .workflow-end .icon {
-  color: #849472;
+  color: #475569;
 }
 .status-tag.draft {
-  color: #72835f;
+  color: #475569;
 }
 .product-actions .text-button {
-  color: #768a5e;
+  color: #475569;
 }
 .catalog-meta,
 .catalog-card strong small,
 .catalog-picker small {
-  color: #7a8f67;
+  color: #475569;
 }
 .backup-card > small,
 .confirm-description,
 .modal-heading p {
-  color: #7c8f6a;
+  color: #475569;
 }
 @media (min-width: 1600px) {
   main {
@@ -2042,7 +2042,7 @@ dialog::backdrop {
     font-size: 12px;
   }
   .field {
-    font-size: 11px;
+    font-size: 12px;
   }
   .panel-heading h2 {
     font-size: 14px;
@@ -2072,7 +2072,7 @@ dialog::backdrop {
   }
   .summary-items > div,
   .summary-breakdown > div {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 @media (max-width: 1250px) {
@@ -2099,7 +2099,7 @@ dialog::backdrop {
     letter-spacing: 1.6px;
   }
   .workspace-label {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1.2px;
   }
   .nav-item {
@@ -2123,7 +2123,7 @@ dialog::backdrop {
     font-size: 12px;
   }
   .privacy-note {
-    font-size: 7px;
+    font-size: 12px;
   }
   .client-panel,
   .details-panel {
@@ -2154,7 +2154,7 @@ dialog::backdrop {
     font-size: 13px;
   }
   .product-head-price small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .page-head h1 {
     font-size: 29px;
@@ -2169,10 +2169,10 @@ dialog::backdrop {
     display: none;
   }
   .example-banner {
-    font-size: 9px;
+    font-size: 12px;
   }
   .example-banner > button {
-    font-size: 8px;
+    font-size: 12px;
   }
   .example-banner strong {
     display: block;
@@ -2246,7 +2246,7 @@ dialog::backdrop {
     gap: 20px;
   }
   .page-head p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .page-head h1 {
     font-size: 29px;
@@ -2290,7 +2290,7 @@ dialog::backdrop {
     padding: 20px 16px;
   }
   .metric > span {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 @media (max-width: 800px) {
@@ -2321,7 +2321,7 @@ dialog::backdrop {
     padding: 24px;
   }
   .privacy-note {
-    font-size: 10px;
+    font-size: 12px;
   }
   .summary-buttons .button {
     font-size: 12px;
@@ -2338,13 +2338,13 @@ dialog::backdrop {
     margin: 0;
   }
   .total-block > span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .total-block > div {
     font-size: 36px;
   }
   .total-block > small {
-    font-size: 11px;
+    font-size: 12px;
   }
   .form-grid.three-cols {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2353,7 +2353,7 @@ dialog::backdrop {
     grid-column: auto;
   }
   .field {
-    font-size: 11px;
+    font-size: 12px;
   }
   .field input,
   .field > select {
@@ -2361,7 +2361,7 @@ dialog::backdrop {
     font-size: 12px;
   }
   .field .unit {
-    font-size: 10px;
+    font-size: 12px;
   }
   .product-head-price strong {
     font-size: 16px;
@@ -2424,7 +2424,7 @@ dialog::backdrop {
     grid-template-columns: 1fr 1fr;
   }
   .workflow {
-    font-size: 10px;
+    font-size: 12px;
     gap: 14px;
   }
   .workflow > i {
@@ -2432,7 +2432,7 @@ dialog::backdrop {
   }
   .app-footer {
     padding: 20px 24px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .app-footer > span:last-child {
     display: none;
@@ -2518,14 +2518,14 @@ dialog::backdrop {
     display: none;
   }
   .local-pill {
-    font-size: 8px;
+    font-size: 12px;
     padding: 5px 7px;
   }
   .topbar .icon-button {
     display: none;
   }
   .breadcrumb {
-    font-size: 10px;
+    font-size: 12px;
     gap: 8px;
   }
   .breadcrumb .icon {
@@ -2545,19 +2545,19 @@ dialog::backdrop {
     margin-top: 9px;
   }
   .page-head p {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 190px;
     line-height: 1.8;
   }
   .page-head .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
     letter-spacing: 1.4px;
   }
   .page-actions {
     padding-top: 23px;
   }
   .page-actions > .button {
-    font-size: 9px;
+    font-size: 12px;
     height: 34px;
     padding: 0 9px;
     gap: 5px;
@@ -2567,12 +2567,12 @@ dialog::backdrop {
     height: 12px;
   }
   .save-indicator {
-    font-size: 7px;
+    font-size: 12px;
   }
   .workflow {
     height: 45px;
     gap: 6px;
-    font-size: 8px;
+    font-size: 12px;
     margin-bottom: 20px;
     justify-content: space-between;
   }
@@ -2582,18 +2582,18 @@ dialog::backdrop {
   .workflow b {
     width: 18px;
     height: 18px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .workflow > i {
     width: 10px;
     flex-shrink: 1;
   }
   .workflow > span:last-of-type {
-    font-size: 8px;
+    font-size: 12px;
   }
   .example-banner {
     padding: 11px;
-    font-size: 9px;
+    font-size: 12px;
     gap: 7px;
     margin-bottom: 20px;
   }
@@ -2605,7 +2605,7 @@ dialog::backdrop {
   }
   .example-banner > button {
     margin-left: 24px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .example-banner button .icon {
     width: 13px;
@@ -2632,10 +2632,10 @@ dialog::backdrop {
     height: 43px;
   }
   .field {
-    font-size: 11px;
+    font-size: 12px;
   }
   .unit {
-    font-size: 10px;
+    font-size: 12px;
   }
   .section-title {
     align-items: flex-start;
@@ -2646,12 +2646,12 @@ dialog::backdrop {
     gap: 6px;
   }
   .section-title p {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.8;
     max-width: 180px;
   }
   .section-title .text-button {
-    font-size: 8px;
+    font-size: 12px;
     gap: 4px;
     margin-top: 3px;
   }
@@ -2671,16 +2671,16 @@ dialog::backdrop {
     font-size: 12px;
   }
   .product-number {
-    font-size: 7px;
+    font-size: 12px;
   }
   .product-meta {
-    font-size: 8px;
+    font-size: 12px;
   }
   .product-head-price strong {
     font-size: 12px;
   }
   .product-head-price small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .expand-icon {
     margin-left: 0;
@@ -2705,37 +2705,37 @@ dialog::backdrop {
     padding-right: 10px;
   }
   .product-actions .text-button {
-    font-size: 9px;
+    font-size: 12px;
   }
   .unit-hint {
-    font-size: 8px;
+    font-size: 12px;
     gap: 4px;
   }
   .unit-hint .icon {
     width: 11px;
   }
   .price-help {
-    font-size: 8px;
+    font-size: 12px;
   }
   .price-help > span {
     display: block;
     margin: 2px 0 0;
   }
   .product-price-row .label {
-    font-size: 10px;
+    font-size: 12px;
   }
   .price-input {
     width: 99px;
   }
   .add-product {
     height: 53px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .product-price-row {
     padding: 15px 0;
   }
   .extra-costs > summary {
-    font-size: 9px;
+    font-size: 12px;
   }
   .extra-costs > .form-grid {
     grid-template-columns: 1fr;
@@ -2756,23 +2756,23 @@ dialog::backdrop {
     justify-content: space-between;
   }
   .privacy-note {
-    font-size: 8px;
+    font-size: 12px;
   }
   .internal-costs summary {
-    font-size: 11px;
+    font-size: 12px;
   }
   .internal-costs > div {
     font-size: 12px;
   }
   .internal-costs p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .internal-costs .text-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .app-footer {
     padding: 18px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .list-toolbar {
     flex-wrap: wrap;
@@ -2783,7 +2783,7 @@ dialog::backdrop {
     flex: 1 1 100%;
   }
   .list-toolbar select {
-    font-size: 10px;
+    font-size: 12px;
   }
   .history-table th,
   .history-table td {
@@ -2796,7 +2796,7 @@ dialog::backdrop {
     font-size: 18px;
   }
   .empty-state p {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.9;
   }
   .overview-banner {
@@ -2808,7 +2808,7 @@ dialog::backdrop {
   }
   .overview-banner p {
     max-width: 190px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .overview-banner > div:first-child {
     z-index: 1;
@@ -2823,7 +2823,7 @@ dialog::backdrop {
     transform: rotate(-10deg);
   }
   .overview-banner .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
   }
   .metrics {
     gap: 12px;
@@ -2832,10 +2832,10 @@ dialog::backdrop {
     padding: 20px 18px;
   }
   .metric > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .metric small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .metric strong {
     font-size: 26px;
@@ -2859,7 +2859,7 @@ dialog::backdrop {
     padding: 20px;
   }
   .info-strip {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.9;
     align-items: flex-start;
   }
@@ -2892,11 +2892,11 @@ dialog::backdrop {
     font-size: 19px;
   }
   .modal-heading p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .modal-actions .button {
     padding: 0 12px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .proposal-dialog {
     padding: 18px 12px 0;
@@ -2911,7 +2911,7 @@ dialog::backdrop {
   }
   .proposal-toolbar .button {
     flex: 1;
-    font-size: 8px;
+    font-size: 12px;
     padding: 0 9px;
   }
   .proposal-toolbar .button.primary {
@@ -2921,7 +2921,7 @@ dialog::backdrop {
     padding: 25px 15px;
   }
   .proposal-preview .proposal-label {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1px;
   }
   .proposal-preview .proposal-wordmark {
@@ -2929,7 +2929,7 @@ dialog::backdrop {
   }
   .proposal-preview .proposal-table th,
   .proposal-preview .proposal-table td {
-    font-size: 9px;
+    font-size: 12px;
     padding: 12px 4px;
   }
   .proposal-preview .proposal-info {
@@ -2937,14 +2937,14 @@ dialog::backdrop {
     padding: 14px;
   }
   .proposal-preview .proposal-info small {
-    font-size: 7px;
+    font-size: 12px;
     letter-spacing: 1px;
   }
   .proposal-preview .proposal-info strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .proposal-preview .proposal-info span {
-    font-size: 9px;
+    font-size: 12px;
   }
   .proposal-preview .proposal-intro h1 {
     font-size: 23px;
@@ -2953,7 +2953,7 @@ dialog::backdrop {
     font-size: 23px;
   }
   .copy-fallback {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2999,23 +2999,23 @@ dialog::backdrop {
 .internal-costs summary,
 .price-help,
 .privacy-note {
-  color: #637356;
+  color: #0f172a;
 }
 .text-button {
-  font-size: 11px;
+  font-size: 12px;
 }
 .summary-buttons .button {
-  font-size: 11px;
+  font-size: 12px;
 }
 .local-pill,
 .breadcrumb,
 .local-note strong,
 .profile strong {
-  font-size: 11px;
+  font-size: 12px;
 }
 @media (max-width: 560px) {
   .page-head p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .panel-heading h2 {
     font-size: 14px;
@@ -3032,13 +3032,13 @@ dialog::backdrop {
     height: 44px;
   }
   .local-pill {
-    font-size: 8px;
+    font-size: 12px;
   }
   .breadcrumb {
-    font-size: 10px;
+    font-size: 12px;
   }
   .section-title .text-button {
-    font-size: 9px;
+    font-size: 12px;
   }
   .field input,
   .field > select,
@@ -3047,5 +3047,296 @@ dialog::backdrop {
   }
   .price-input input {
     font-size: 16px;
+  }
+}
+
+/* Clear working palette: white surfaces, dark text, blue actions. */
+.button.primary,
+.summary-buttons .primary {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+.button.primary:hover,
+.summary-buttons .primary:hover {
+  background: #1e40af;
+}
+.button.secondary {
+  color: #1e3a8a;
+  border-color: #94a3b8;
+}
+.nav-item.active {
+  color: #1e3a8a;
+  background: #dbeafe;
+}
+.nav-item:hover {
+  color: #1e3a8a;
+  background: #eff6ff;
+}
+.nav-count {
+  color: #1e3a8a;
+  background: #bfdbfe;
+}
+.total-block {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+.total-block > div {
+  color: #0f172a;
+}
+.positive,
+.status-tag.approved {
+  color: #166534;
+}
+.negative,
+.form-error,
+.status-tag.declined {
+  color: #991b1b;
+}
+.warning-note {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #d97706;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px #dbeafe;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline-color: #2563eb;
+}
+.page-head h1,
+.section-title h2,
+.panel-heading h2,
+.modal-heading h2 {
+  color: #0f172a;
+}
+.field,
+.field > span {
+  color: #1e293b;
+  font-size: 13px;
+}
+.field input,
+.field > select,
+.field textarea {
+  color: #0f172a;
+  font-size: 15px;
+  border-color: #94a3b8;
+  min-height: 44px;
+}
+.field input::placeholder {
+  color: #64748b;
+}
+.field small,
+.quiet,
+.unit,
+.page-head p,
+.section-title p,
+.product-meta,
+.price-help,
+.internal-costs,
+.internal-costs p,
+.internal-costs summary,
+.tip-card p {
+  color: #475569;
+  font-size: 12px;
+}
+.button,
+.summary-buttons .button,
+.nav-item {
+  font-size: 13px;
+  min-height: 44px;
+}
+.summary-items > div,
+.summary-breakdown > div,
+.internal-costs > div {
+  font-size: 13px;
+}
+.product-identity > strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+.brand-name small {
+  font-size: 8px;
+}
+.brand-name,
+.brand-name > span,
+.brand-cube {
+  color: #1e3a8a;
+}
+.workflow {
+  color: #475569;
+}
+.eyebrow {
+  color: #475569;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+}
+.production-settings {
+  margin: 20px 0 0;
+  padding: 17px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.production-settings .form-grid {
+  padding: 0;
+}
+.production-hint {
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 12px 0 0;
+}
+.production-costs {
+  margin-top: 20px;
+  padding: 18px 0;
+  border-top: 1px solid #cbd5e1;
+}
+.production-cost-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.production-cost-grid > div {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.production-cost-grid span {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+.production-cost-grid strong {
+  display: block;
+  color: #0f172a;
+  font: 750 23px/1.5 var(--display);
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+.production-cost-grid small {
+  color: #475569;
+  font-size: 12px;
+}
+.order-production-cost {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #334155;
+  font-size: 12px;
+  margin-top: 14px;
+}
+.cost-rounding-note {
+  display: block;
+  color: #475569;
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+.catalog-card-content {
+  padding: 22px;
+}
+.catalog-pricing-label {
+  color: #1e3a8a;
+  font-weight: 650;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin-top: 12px;
+}
+.catalog-prices {
+  margin-top: 12px;
+}
+.catalog-prices strong {
+  color: #1e3a8a;
+  overflow-wrap: anywhere;
+}
+.catalog-batch-label {
+  color: #334155;
+  font-size: 12px;
+  margin-top: 10px;
+}
+.catalog-card .production-cost-grid {
+  gap: 8px;
+}
+.catalog-card .production-cost-grid > div {
+  padding: 10px;
+}
+.catalog-card .production-cost-grid strong {
+  font-size: 20px;
+}
+.catalog-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.catalog-art {
+  height: 100px;
+}
+.catalog-art > svg {
+  width: 90px;
+  height: 90px;
+}
+.brand-name small {
+  white-space: nowrap;
+  letter-spacing: 0.7px;
+}
+.workspace-label {
+  font-size: 11px;
+  letter-spacing: 0.8px;
+}
+#catalog-form > .production-settings {
+  margin-bottom: 20px;
+}
+@media (max-width: 800px) {
+  .production-settings {
+    padding: 14px;
+  }
+  .workflow {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    gap: 8px 14px;
+  }
+  .workflow > i {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .field input,
+  .field > select,
+  .field textarea {
+    font-size: 16px;
+  }
+  .local-pill,
+  .breadcrumb {
+    font-size: 11px;
+  }
+  .client-grid {
+    grid-template-columns: 1fr;
+  }
+  .production-settings .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .production-cost-grid > div {
+    padding: 12px;
+  }
+  .production-cost-grid strong {
+    font-size: 21px;
+  }
+  .button,
+  .summary-buttons .button {
+    font-size: 12px;
+  }
+  .workflow > span {
+    font-size: 11px;
+  }
+  .catalog-grid {
+    grid-template-columns: 1fr;
   }
 }
