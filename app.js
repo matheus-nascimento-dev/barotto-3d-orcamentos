@@ -1,5 +1,8 @@
 import {
   defaults,
+  normalizePricing,
+  selectedMarkup,
+  customerLabel,
   STORE_KEY,
   money,
   round,
@@ -91,7 +94,7 @@ store ??= {
   catalog: [],
   draft: null,
 };
-store.settings = { ...defaults, ...store.settings };
+store.settings = normalizePricing(store.settings);
 let view = "editor",
   quote = store.draft || newQuote(true),
   filter = "",
@@ -117,9 +120,10 @@ function newQuote(example = false) {
     discount: 0,
     shipping: 0,
     status: "Rascunho",
+    customerType: "retail",
     example,
     items: [],
-    pricing: { ...(store?.settings ?? defaults) },
+    pricing: normalizePricing(store?.settings ?? defaults),
   };
   q.items = example
     ? [
@@ -149,7 +153,15 @@ function newQuote(example = false) {
   return q;
 }
 function pricing() {
-  return { ...store.settings, ...quote.pricing };
+  const snapshot = quote.pricing ?? store.settings;
+  return normalizePricing({
+    ...store.settings,
+    ...snapshot,
+    markupWholesale:
+      snapshot.markupWholesale ??
+      snapshot.markup ??
+      store.settings.markupWholesale,
+  });
 }
 function toast(text, error = false) {
   clearTimeout(toastTimer);
@@ -240,10 +252,39 @@ function select(label, key, value, options, scope = "quote") {
       scope === "quote"
         ? `data-field="${key}"`
         : `data-item="${scope}" data-key="${key}"`;
-  return `<label class="field" for="${id}"><span>${label}</span><select id="${id}" ${attrs}>${options.map((v) => `<option ${v === value ? "selected" : ""}>${e(v)}</option>`).join("")}</select></label>`;
+  return `<label class="field" for="${id}"><span>${label}</span><select id="${id}" ${attrs}>${options
+    .map((option) => {
+      const v = typeof option === "string" ? option : option.value;
+      const label = typeof option === "string" ? option : option.label;
+      return `<option value="${e(v)}" ${v === value ? "selected" : ""}>${e(label)}</option>`;
+    })
+    .join("")}</select></label>`;
 }
 function textarea(label, key, value, scope = "quote", hint = "") {
   return `<label class="field wide"><span>${label}</span><textarea ${scope === "quote" ? `data-field="${key}"` : `data-setting="${key}"`} maxlength="10000" rows="3">${e(value)}</textarea>${hint ? `<small>${hint}</small>` : ""}</label>`;
+}
+const customerTypes = [
+  { value: "retail", label: "Consumidor final" },
+  { value: "wholesale", label: "Lojista" },
+];
+function customerTypeField() {
+  return select(
+    "Tipo de cliente",
+    "customerType",
+    quote.customerType ?? "retail",
+    customerTypes,
+  );
+}
+function customerTypeOptions(type) {
+  return customerTypes
+    .map(
+      (option) =>
+        `<option value="${option.value}" ${type === option.value ? "selected" : ""}>${option.label}</option>`,
+    )
+    .join("");
+}
+function exportPricingNote() {
+  return `Markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}× nos preços automáticos. Preços manuais são mantidos.`;
 }
 function shell() {
   root.innerHTML = `<div class="app-shell"><aside class="sidebar"><a class="brand" href="#" data-action="navigate" data-view="overview" aria-label="Barotto 3D, visão geral">${brand()}</a><div class="workspace-label">SEU ESPAÇO DE CRIAÇÃO</div><nav aria-label="Navegação principal">${[
@@ -265,7 +306,7 @@ function pageHead(eyebrow, title, description, actions = "") {
   return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${description}</p></div><div class="page-actions">${actions}</div></div>`;
 }
 function editor() {
-  return `${pageHead("DO PROJETO À PROPOSTA", `${quote.number ? "Editar orçamento" : "Novo orçamento"}<span class="heading-dot">.</span>`, "Você cuida da criação. A gente ajuda com as contas.", `<button class="button secondary" data-action="navigate" data-view="history">${icon("clock")} Meus orçamentos</button><span id="save-indicator" class="save-indicator"><span class="status-dot"></span> ${store.draft ? "Rascunho salvo" : "Salvamento automático"}</span>`)}<div class="workflow"><span class="current"><b>01</b> Dados do cliente</span><i></i><span><b>02</b> Produtos e valores</span><i></i><span><b>03</b> Proposta pronta</span><div class="workflow-end">${icon("shield")} Tudo em um só lugar</div></div>${quote.example ? `<div class="example-banner">${icon("spark")}<span><strong>Um exemplo para começar.</strong> Edite os produtos abaixo ou monte o seu orçamento do zero.</span><button data-action="clear-example">Começar do zero ${icon("arrow")}</button></div>` : ""}<div class="editor-layout"><form id="quote-form" class="editor-main"><section class="panel client-panel"><div class="panel-heading"><div><span class="section-icon">${icon("file")}</span><h2>Para quem vamos criar?</h2></div><span class="quiet">${quote.number ? e(quote.number) : "Novo rascunho"}</span></div><div class="form-grid client-grid">${field("Nome do cliente", "client", quote.client, { required: true, placeholder: "Nome ou empresa" })}${field("E-mail", "email", quote.email, { type: "email", placeholder: "cliente@email.com" })}${field("Telefone / WhatsApp", "phone", quote.phone, { type: "tel", placeholder: "(00) 00000-0000" })}${field("Nome do projeto", "title", quote.title, { placeholder: "Ex.: Peças para escritório" })}</div></section><section class="products-section"><div class="section-title"><div><h2>Produtos do orçamento <span id="item-count" class="count-badge">${quote.items.length}</span></h2><p>Adicione cada peça e os dados do seu fatiador.</p></div><button type="button" class="text-button" data-action="from-catalog">${icon("box")} Usar do catálogo</button></div><div id="products">${quote.items.map((item, index) => productCard(item, index)).join("")}</div><button type="button" class="add-product" data-action="add-product">${icon("plus")} Adicionar outro produto <span>Uma proposta, várias possibilidades.</span></button></section><section class="panel details-panel"><div class="panel-heading"><div><span class="section-icon">${icon("clock")}</span><h2>Os últimos detalhes</h2></div><span class="quiet">Aparecem na proposta</span></div><div class="form-grid">${field("Prazo de produção", "lead", quote.lead, { type: "number", step: 1, min: 1, max: 365, unit: "dias úteis", required: true })}${field("Válido até", "validUntil", quote.validUntil, { type: "date", required: true })}${field("Frete", "shipping", quote.shipping, { type: "number", unit: "R$", max: 100000 })}${field("Desconto no orçamento", "discount", quote.discount, { type: "number", unit: "R$", max: 100000 })}${textarea("Forma de pagamento", "payment", quote.payment)}${textarea("Observações para o cliente", "notes", quote.notes, "quote", "Inclua medidas, acabamento, referência do arquivo ou instruções de retirada.")}</div><details class="conditions-details"><summary>Condições de produção ${icon("down")}</summary>${textarea("Condições", "terms", quote.terms)}</details></section></form><aside class="summary-column"><div id="summary"></div><div class="tip-card"><span>${icon("leaf")}</span><div><strong>Mais tempo para criar.</strong><p>Salve seus produtos no catálogo e reutilize nos próximos orçamentos.</p><button class="text-button" data-action="navigate" data-view="catalog">Conhecer meu catálogo ${icon("arrow")}</button></div></div></aside></div>`;
+  return `${pageHead("DO PROJETO À PROPOSTA", `${quote.number ? "Editar orçamento" : "Novo orçamento"}<span class="heading-dot">.</span>`, "Você cuida da criação. A gente ajuda com as contas.", `<button class="button secondary" data-action="navigate" data-view="history">${icon("clock")} Meus orçamentos</button><span id="save-indicator" class="save-indicator"><span class="status-dot"></span> ${store.draft ? "Rascunho salvo" : "Salvamento automático"}</span>`)}<div class="workflow"><span class="current"><b>01</b> Dados do cliente</span><i></i><span><b>02</b> Produtos e valores</span><i></i><span><b>03</b> Proposta pronta</span><div class="workflow-end">${icon("shield")} Tudo em um só lugar</div></div>${quote.example ? `<div class="example-banner">${icon("spark")}<span><strong>Um exemplo para começar.</strong> Edite os produtos abaixo ou monte o seu orçamento do zero.</span><button data-action="clear-example">Começar do zero ${icon("arrow")}</button></div>` : ""}<div class="editor-layout"><form id="quote-form" class="editor-main"><section class="panel client-panel"><div class="panel-heading"><div><span class="section-icon">${icon("file")}</span><h2>Para quem vamos criar?</h2></div><span class="quiet">${quote.number ? e(quote.number) : "Novo rascunho"}</span></div><div class="form-grid client-grid">${field("Nome do cliente", "client", quote.client, { required: true, placeholder: "Nome ou empresa" })}${field("E-mail", "email", quote.email, { type: "email", placeholder: "cliente@email.com" })}${field("Telefone / WhatsApp", "phone", quote.phone, { type: "tel", placeholder: "(00) 00000-0000" })}${field("Nome do projeto", "title", quote.title, { placeholder: "Ex.: Peças para escritório" })}${customerTypeField()}<p class="customer-pricing-hint">O tipo de cliente define o markup dos preços automáticos. Você também pode escolher na exportação.</p></div></section><section class="products-section"><div class="section-title"><div><h2>Produtos do orçamento <span id="item-count" class="count-badge">${quote.items.length}</span></h2><p>Adicione cada peça e os dados do seu fatiador.</p></div><button type="button" class="text-button" data-action="from-catalog">${icon("box")} Usar do catálogo</button></div><div id="products">${quote.items.map((item, index) => productCard(item, index)).join("")}</div><button type="button" class="add-product" data-action="add-product">${icon("plus")} Adicionar outro produto <span>Uma proposta, várias possibilidades.</span></button></section><section class="panel details-panel"><div class="panel-heading"><div><span class="section-icon">${icon("clock")}</span><h2>Os últimos detalhes</h2></div><span class="quiet">Aparecem na proposta</span></div><div class="form-grid">${field("Prazo de produção", "lead", quote.lead, { type: "number", step: 1, min: 1, max: 365, unit: "dias úteis", required: true })}${field("Válido até", "validUntil", quote.validUntil, { type: "date", required: true })}${field("Frete", "shipping", quote.shipping, { type: "number", unit: "R$", max: 100000 })}${field("Desconto no orçamento", "discount", quote.discount, { type: "number", unit: "R$", max: 100000 })}${textarea("Forma de pagamento", "payment", quote.payment)}${textarea("Observações para o cliente", "notes", quote.notes, "quote", "Inclua medidas, acabamento, referência do arquivo ou instruções de retirada.")}</div><details class="conditions-details"><summary>Condições de produção ${icon("down")}</summary>${textarea("Condições", "terms", quote.terms)}</details></section></form><aside class="summary-column"><div id="summary"></div><div class="tip-card"><span>${icon("leaf")}</span><div><strong>Mais tempo para criar.</strong><p>Salve seus produtos no catálogo e reutilize nos próximos orçamentos.</p><button class="text-button" data-action="navigate" data-view="catalog">Conhecer meu catálogo ${icon("arrow")}</button></div></div></aside></div>`;
 }
 function productArt(index = 0) {
   return index % 2 === 0
@@ -273,8 +314,8 @@ function productArt(index = 0) {
     : `<svg viewBox="0 0 88 88" aria-hidden="true"><ellipse cx="44" cy="73" rx="28" ry="5" fill="#1d3833" opacity=".1"/><path d="m19 62 33-8 21 11-35 10z" fill="#63716c"/><path d="m38 67 2-37 25-9-9 39-18 7z" fill="#75847a"/><path d="m40 30-8-5 25-8 8 4z" fill="#a6afa5"/><path d="m32 25-1 34 7 8 2-37z" fill="#42554b"/><path d="m19 62 19 9 35-6v4l-35 10-19-12z" fill="#354b40"/><path d="m41 37 17-6m-18 12 17-6m-18 12 16-6m-17 12 16-6" stroke="#a1aca1" opacity=".45"/></svg>`;
 }
 function productCard(item, index) {
-  const s = calculateItem(item, pricing());
-  return `<details class="product-card" data-product="${item.id}" ${index === 0 ? "open" : ""}><summary><span class="product-art art-${index % 2}">${productArt(index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")}</span><strong data-product-title="${item.id}">${e(item.name || "Novo produto")}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} <span>·</span> ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(s.total)}</strong><small>${item.quantity} ${item.quantity > 1 ? "unidades" : "unidade"}</small></span><span class="expand-icon">${icon("down")}</span></summary><div class="product-content"><div class="form-grid three-cols">${field("Nome do produto", "name", item.name, { scope: item.id, required: true, wide: true, placeholder: "O que vamos imprimir?" })}${select("Material", "material", item.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], item.id)}${field("Cor / acabamento", "color", item.color, { scope: item.id, placeholder: "Ex.: Preto fosco" })}${field("Quantidade", "quantity", item.quantity, { scope: item.id, type: "number", min: 1, max: 100000, step: 1, unit: "un.", required: true })}</div><div class="unit-hint">${icon("cube")} Informe peso, tempo e custos <strong>por unidade</strong>.</div><div class="form-grid three-cols">${field("Peso de material", "grams", item.grams, { scope: item.id, type: "number", unit: "g", max: 1000000, required: true })}${field("Tempo de impressão", "hours", item.hours, { scope: item.id, type: "number", unit: "horas", max: 100000, required: true })}${field("Preço do material", "filament", item.filament, { scope: item.id, type: "number", unit: "R$/kg", required: true })}</div><details class="extra-costs"><summary>Acabamento e custos adicionais ${icon("plus")}</summary><div class="form-grid">${field("Tempo de acabamento", "minutes", item.minutes, { scope: item.id, type: "number", unit: "min", max: 100000 })}${field("Extras por unidade", "extra", item.extra, { scope: item.id, type: "number", unit: "R$", max: 100000 })}${field("Descrição para a proposta", "note", item.note, { scope: item.id, wide: true, placeholder: "Dimensões, personalização ou acabamento" })}</div></details><div class="product-price-row"><div><span class="label">Preço de venda por unidade</span><span class="price-help" data-price-help="${item.id}">Sugestão: ${money(s.suggested)} <span>· markup ${pricing().markup}×</span></span></div><label class="price-input"><span>R$</span><input aria-label="Preço de venda de ${e(item.name || "novo produto")}" type="number" min="0" max="1000000000" step="0.01" data-item="${item.id}" data-key="price" value="${item.price ?? ""}" placeholder="${s.suggested.toFixed(2)}" title="Deixe em branco para usar o preço sugerido"></label></div><div class="product-actions"><button type="button" class="text-button" data-action="catalog-save" data-id="${item.id}">${icon("box")} Salvar no catálogo</button><div><button type="button" class="icon-button" title="Duplicar produto" aria-label="Duplicar ${e(item.name || "produto")}" data-action="duplicate-item" data-id="${item.id}">${icon("copy")}</button><button type="button" class="icon-button danger" title="Remover produto" aria-label="Remover ${e(item.name || "produto")}" data-action="remove-item" data-id="${item.id}">${icon("trash")}</button></div></div></div></details>`;
+  const s = calculateItem(item, pricing(), quote.customerType ?? "retail");
+  return `<details class="product-card" data-product="${item.id}" ${index === 0 ? "open" : ""}><summary><span class="product-art art-${index % 2}">${productArt(index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")}</span><strong data-product-title="${item.id}">${e(item.name || "Novo produto")}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} <span>·</span> ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(s.total)}</strong><small>${item.quantity} ${item.quantity > 1 ? "unidades" : "unidade"}</small></span><span class="expand-icon">${icon("down")}</span></summary><div class="product-content"><div class="form-grid three-cols">${field("Nome do produto", "name", item.name, { scope: item.id, required: true, wide: true, placeholder: "O que vamos imprimir?" })}${select("Material", "material", item.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], item.id)}${field("Cor / acabamento", "color", item.color, { scope: item.id, placeholder: "Ex.: Preto fosco" })}${field("Quantidade", "quantity", item.quantity, { scope: item.id, type: "number", min: 1, max: 100000, step: 1, unit: "un.", required: true })}</div><div class="unit-hint">${icon("cube")} Informe peso, tempo e custos <strong>por unidade</strong>.</div><div class="form-grid three-cols">${field("Peso de material", "grams", item.grams, { scope: item.id, type: "number", unit: "g", max: 1000000, required: true })}${field("Tempo de impressão", "hours", item.hours, { scope: item.id, type: "number", unit: "horas", max: 100000, required: true })}${field("Preço do material", "filament", item.filament, { scope: item.id, type: "number", unit: "R$/kg", required: true })}</div><details class="extra-costs"><summary>Acabamento e custos adicionais ${icon("plus")}</summary><div class="form-grid">${field("Tempo de acabamento", "minutes", item.minutes, { scope: item.id, type: "number", unit: "min", max: 100000 })}${field("Extras por unidade", "extra", item.extra, { scope: item.id, type: "number", unit: "R$", max: 100000 })}${field("Descrição para a proposta", "note", item.note, { scope: item.id, wide: true, placeholder: "Dimensões, personalização ou acabamento" })}</div></details><div class="product-price-row"><div><span class="label">Preço de venda por unidade</span><span class="price-help" data-price-help="${item.id}">Sugestão: ${money(s.suggested)} <span>· markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}× · ${customerLabel(quote.customerType ?? "retail")}</span></span></div><label class="price-input"><span>R$</span><input aria-label="Preço de venda de ${e(item.name || "novo produto")}" type="number" min="0" max="1000000000" step="0.01" data-item="${item.id}" data-key="price" value="${item.price ?? ""}" placeholder="${s.suggested.toFixed(2)}" title="Deixe em branco para usar o preço sugerido"></label></div><div class="product-actions"><button type="button" class="text-button" data-action="catalog-save" data-id="${item.id}">${icon("box")} Salvar no catálogo</button><div><button type="button" class="icon-button" title="Duplicar produto" aria-label="Duplicar ${e(item.name || "produto")}" data-action="duplicate-item" data-id="${item.id}">${icon("copy")}</button><button type="button" class="icon-button danger" title="Remover produto" aria-label="Remover ${e(item.name || "produto")}" data-action="remove-item" data-id="${item.id}">${icon("trash")}</button></div></div></div></details>`;
 }
 function updateSummary() {
   if (view !== "editor") return;
@@ -298,7 +339,7 @@ function updateSummary() {
       meta.textContent = `${item.material} · ${item.color || "Cor a definir"}`;
     const help = document.querySelector(`[data-price-help="${item.id}"]`);
     if (help)
-      help.innerHTML = `Sugestão: ${money(v.suggested)} <span>· markup ${pricing().markup}×</span>`;
+      help.innerHTML = `Sugestão: ${money(v.suggested)} <span>· markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}× · ${customerLabel(quote.customerType ?? "retail")}</span>`;
     const input = document.querySelector(
       `input[data-item="${item.id}"][data-key="price"]`,
     );
@@ -311,7 +352,7 @@ function updateSummary() {
     }
   }
   const summary = document.querySelector("#summary");
-  summary.innerHTML = `<section class="panel summary-card"><div class="summary-heading"><h2>Resumo do orçamento</h2><span class="summary-icon">${icon("file")}</span></div><div class="summary-items">${quote.items.map((item, i) => `<div><span>${e(item.name || "Novo produto")} <small>×${item.quantity}</small></span><strong>${money(c.items[i].total)}</strong></div>`).join("") || '<p class="quiet">Adicione seu primeiro produto.</p>'}</div><div class="summary-breakdown"><div><span>Subtotal <small>(${c.quantity} peças)</small></span><b>${money(c.subtotal)}</b></div><div><span>Desconto</span><b>${c.discount ? "− " : ""}${money(c.discount)}</b></div><div><span>Frete</span><b>${c.shipping ? money(c.shipping) : "A combinar"}</b></div></div><div class="total-block"><span>VALOR TOTAL DA PROPOSTA</span><div>${money(c.total)}</div><small>${icon("clock")} Prazo de ${e(quote.lead)} dias úteis</small></div><div class="summary-buttons"><button class="button primary" data-action="preview">${icon("eye")} Visualizar proposta ${icon("arrow")}</button><button class="button secondary" data-action="save-quote">${icon("save")} Salvar orçamento</button></div><div class="privacy-note">${icon("shield")} O cliente vê apenas os valores da proposta.</div></section><details class="internal-costs"><summary><span>${icon("wallet")} Seu resultado estimado</span>${icon("down")}</summary><div><span>Custo de produção</span><b>${money(c.cost)}</b></div><div><span>Taxas sobre a venda</span><b>${money(c.fees)}</b></div><div class="${c.profit < 0 ? "negative" : "positive"}"><span>Lucro estimado</span><b>${money(c.profit)}</b></div><div><span>Margem sobre produtos</span><b>${c.margin.toFixed(1)}%</b></div><p>Estimativa interna. Frete é repassado sem margem. Taxas incidem após o desconto.</p><button class="text-button" data-action="quote-pricing">Ajustar custos deste orçamento ${icon("arrow")}</button></details>${c.profit < 0 ? '<div class="warning-note">Este orçamento está abaixo do custo estimado. Confira o preço e o desconto.</div>' : ""}`;
+  summary.innerHTML = `<section class="panel summary-card"><div class="summary-heading"><h2>Resumo do orçamento</h2><span class="summary-icon">${icon("file")}</span></div><div class="summary-customer-type">${customerLabel(quote.customerType ?? "retail")} · markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}×</div><div class="summary-items">${quote.items.map((item, i) => `<div><span>${e(item.name || "Novo produto")} <small>×${item.quantity}</small></span><strong>${money(c.items[i].total)}</strong></div>`).join("") || '<p class="quiet">Adicione seu primeiro produto.</p>'}</div><div class="summary-breakdown"><div><span>Subtotal <small>(${c.quantity} peças)</small></span><b>${money(c.subtotal)}</b></div><div><span>Desconto</span><b>${c.discount ? "− " : ""}${money(c.discount)}</b></div><div><span>Frete</span><b>${c.shipping ? money(c.shipping) : "A combinar"}</b></div></div><div class="total-block"><span>VALOR TOTAL DA PROPOSTA</span><div>${money(c.total)}</div><small>${icon("clock")} Prazo de ${e(quote.lead)} dias úteis</small></div><div class="summary-buttons"><button class="button primary" data-action="preview">${icon("eye")} Visualizar proposta ${icon("arrow")}</button><button class="button secondary" data-action="save-quote">${icon("save")} Salvar orçamento</button></div><div class="privacy-note">${icon("shield")} O cliente vê apenas os valores da proposta.</div></section><details class="internal-costs"><summary><span>${icon("wallet")} Seu resultado estimado</span>${icon("down")}</summary><div><span>Custo de produção</span><b>${money(c.cost)}</b></div><div><span>Taxas sobre a venda</span><b>${money(c.fees)}</b></div><div class="${c.profit < 0 ? "negative" : "positive"}"><span>Lucro estimado</span><b>${money(c.profit)}</b></div><div><span>Margem sobre produtos</span><b>${c.margin.toFixed(1)}%</b></div><p>Estimativa interna. Frete é repassado sem margem. Taxas incidem após o desconto.</p><button class="text-button" data-action="quote-pricing">Ajustar custos deste orçamento ${icon("arrow")}</button></details>${c.profit < 0 ? '<div class="warning-note">Este orçamento está abaixo do custo estimado. Confira o preço e o desconto.</div>' : ""}`;
 }
 function statusClass(status) {
   return (
@@ -389,12 +430,12 @@ function overview() {
   }`;
 }
 function catalog() {
-  return `${pageHead("CRIE UMA VEZ. REUTILIZE SEMPRE.", 'Meus produtos<span class="heading-dot">.</span>', "Suas peças favoritas, prontas para o próximo orçamento.", `<button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`)}<div class="info-strip">${icon("box")} O catálogo guarda os dados da peça. Os preços são recalculados com os custos do orçamento.</div>${store.catalog.length ? `<div class="catalog-grid">${store.catalog.map((p, i) => `<article class="panel catalog-card"><div class="catalog-art">${productArt(i)}</div><div class="catalog-card-content"><span class="eyebrow">${e(p.material)} · ${e(p.color || "COR A DEFINIR")}</span><h2>${e(p.name)}</h2><div class="catalog-meta"><span>${p.grams} g</span><span>${p.hours} h / un.</span></div><strong>${money(calculateItem(p, store.settings).unitPrice)} <small>/ un.</small></strong><div class="catalog-actions"><button class="button secondary" data-action="catalog-add" data-id="${p.id}">${icon("plus")} Usar no orçamento</button><button class="icon-button" aria-label="Editar ${e(p.name)}" data-action="catalog-edit" data-id="${p.id}">${icon("edit")}</button><button class="icon-button danger" aria-label="Excluir ${e(p.name)}" data-action="catalog-delete" data-id="${p.id}">${icon("trash")}</button></div></div></article>`).join("")}</div>` : empty("box", "Seu catálogo está esperando suas criações.", "Cadastre uma peça ou use “Salvar no catálogo” nos produtos do orçamento.", "Cadastrar primeiro produto", "catalog-new")}`;
+  return `${pageHead("CRIE UMA VEZ. REUTILIZE SEMPRE.", 'Meus produtos<span class="heading-dot">.</span>', "Suas peças favoritas, prontas para o próximo orçamento.", `<button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`)}<div class="info-strip">${icon("box")} O catálogo guarda os dados da peça. Os preços são recalculados com os custos do orçamento.</div>${store.catalog.length ? `<div class="catalog-grid">${store.catalog.map((p, i) => `<article class="panel catalog-card"><div class="catalog-art">${productArt(i)}</div><div class="catalog-card-content"><span class="eyebrow">${e(p.material)} · ${e(p.color || "COR A DEFINIR")}</span><h2>${e(p.name)}</h2><div class="catalog-meta"><span>${p.grams} g</span><span>${p.hours} h / un.</span></div><div class="catalog-prices"><div><span>Consumidor final</span><strong>${money(calculateItem(p, store.settings, "retail").unitPrice)} <small>/ un.</small></strong></div><div><span>Lojista</span><strong>${money(calculateItem(p, store.settings, "wholesale").unitPrice)} <small>/ un.</small></strong></div></div>${p.price != null ? '<small class="fixed-price-note">Preço fixo: igual para os dois tipos de cliente.</small>' : ""}<div class="catalog-actions"><button class="button secondary" data-action="catalog-add" data-id="${p.id}">${icon("plus")} Usar no orçamento</button><button class="icon-button" aria-label="Editar ${e(p.name)}" data-action="catalog-edit" data-id="${p.id}">${icon("edit")}</button><button class="icon-button danger" aria-label="Excluir ${e(p.name)}" data-action="catalog-delete" data-id="${p.id}">${icon("trash")}</button></div></div></article>`).join("")}</div>` : empty("box", "Seu catálogo está esperando suas criações.", "Cadastre uma peça ou use “Salvar no catálogo” nos produtos do orçamento.", "Cadastrar primeiro produto", "catalog-new")}`;
 }
 const productionFields = (s) =>
-  `${field("Potência média da impressora", "power", s.power, { type: "number", scope: "settings", unit: "W" })}${field("Tarifa de energia", "kwh", s.kwh, { type: "number", scope: "settings", unit: "R$/kWh" })}${field("Valor da impressora", "printer", s.printer, { type: "number", scope: "settings", unit: "R$" })}${field("Vida útil da impressora", "life", s.life, { type: "number", scope: "settings", unit: "horas", min: 1, step: 1 })}${field("Custos fixos mensais", "fixed", s.fixed, { type: "number", scope: "settings", unit: "R$" })}${field("Produção mensal estimada", "monthly", s.monthly, { type: "number", scope: "settings", unit: "un.", min: 1, step: 1 })}${field("Embalagem por unidade", "packaging", s.packaging, { type: "number", scope: "settings", unit: "R$" })}${field("Hora de acabamento", "labor", s.labor, { type: "number", scope: "settings", unit: "R$/h" })}${field("Reserva para falhas", "failure", s.failure, { type: "number", scope: "settings", unit: "%", max: 100 })}${field("Markup sobre o custo", "markup", s.markup, { type: "number", scope: "settings", unit: "×", min: 1, max: 100 })}${field("Imposto sobre a venda", "tax", s.tax, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Taxa de pagamento", "card", s.card, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Anúncios sobre a venda", "ads", s.ads, { type: "number", scope: "settings", unit: "%", max: 99 })}`;
+  `${field("Potência média da impressora", "power", s.power, { type: "number", scope: "settings", unit: "W" })}${field("Tarifa de energia", "kwh", s.kwh, { type: "number", scope: "settings", unit: "R$/kWh" })}${field("Valor da impressora", "printer", s.printer, { type: "number", scope: "settings", unit: "R$" })}${field("Vida útil da impressora", "life", s.life, { type: "number", scope: "settings", unit: "horas", min: 1, step: 1 })}${field("Custos fixos mensais", "fixed", s.fixed, { type: "number", scope: "settings", unit: "R$" })}${field("Produção mensal estimada", "monthly", s.monthly, { type: "number", scope: "settings", unit: "un.", min: 1, step: 1 })}${field("Embalagem por unidade", "packaging", s.packaging, { type: "number", scope: "settings", unit: "R$" })}${field("Hora de acabamento", "labor", s.labor, { type: "number", scope: "settings", unit: "R$/h" })}${field("Reserva para falhas", "failure", s.failure, { type: "number", scope: "settings", unit: "%", max: 100 })}${field("Markup — consumidor final", "markup", s.markup, { type: "number", scope: "settings", unit: "×", min: 1, max: 100, required: true })}${field("Markup — lojista", "markupWholesale", s.markupWholesale ?? s.markup, { type: "number", scope: "settings", unit: "×", min: 1, max: 100, required: true })}${field("Imposto sobre a venda", "tax", s.tax, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Taxa de pagamento", "card", s.card, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Anúncios sobre a venda", "ads", s.ads, { type: "number", scope: "settings", unit: "%", max: 99 })}`;
 function settings() {
-  const s = store.settings;
+  const s = normalizePricing(store.settings);
   return `${pageHead("DO SEU JEITO", 'Configurações<span class="heading-dot">.</span>', "A identidade do seu estúdio e os números por trás das suas criações.")}<form id="settings-form" class="settings-layout"><div class="settings-main"><section class="panel settings-section"><div class="panel-heading"><div>${icon("cube")}<h2>Seu estúdio</h2></div><span class="quiet">Visível na proposta</span></div><div class="form-grid">${field("Nome da empresa", "company", s.company, { scope: "settings", required: true })}${field("Contato comercial", "contact", s.contact, { scope: "settings", placeholder: "Telefone, e-mail ou Instagram" })}${field("CPF / CNPJ (opcional)", "document", s.document, { scope: "settings" })}${field("Endereço (opcional)", "address", s.address, { scope: "settings" })}</div></section><section class="panel settings-section"><div class="panel-heading"><div>${icon("settings")}<h2>Custos e precificação</h2></div></div><p class="section-description">Valores padrão para novos orçamentos. Orçamentos existentes guardam os custos usados na criação.</p><div class="form-grid">${productionFields(s)}</div><div class="formula-note">Preço sugerido = custo com reserva de falhas × markup.<br>Lucro estimado = venda com desconto − custo − taxas. Exemplo: markup 3× significa vender por três vezes o custo.</div></section><section class="panel settings-section"><div class="panel-heading"><div>${icon("file")}<h2>Condições padrão</h2></div></div><div class="form-grid">${field("Validade do orçamento", "validity", s.validity, { type: "number", scope: "settings", unit: "dias", min: 1, max: 365, step: 1 })}${field("Prazo de produção", "lead", s.lead, { type: "number", scope: "settings", unit: "dias úteis", min: 1, max: 365, step: 1 })}${textarea("Pagamento", "payment", s.payment, "settings")}${textarea("Condições", "terms", s.terms, "settings")}</div></section><button class="button primary" type="submit">${icon("save")} Salvar configurações</button></div><aside><section class="panel backup-card"><span class="large-icon">${icon("shield")}</span><h2>Seu trabalho bem guardado.</h2><p>Os dados ficam apenas neste navegador. Para transferir de computador ou evitar perdas, baixe uma cópia regularmente.</p><button type="button" class="button primary" data-action="backup">${icon("download")} Baixar backup</button><button type="button" class="button secondary" data-action="restore">${icon("upload")} Restaurar backup</button><input id="backup-input" type="file" accept=".json,application/json" hidden><small>O backup inclui clientes, produtos, orçamentos, rascunho e configurações. Guarde-o em local seguro.</small>${storageBlocked ? `<button type="button" class="text-button" data-action="raw-backup">Baixar dados originais para recuperação</button>` : ""}</section><div class="tip-card">${icon("help")}<p>Não há sincronização entre navegadores. O endereço local e o futuro site GitHub terão armazenamentos separados. Use o backup para transferir.</p></div></aside></form>`;
 }
 function navigate(next) {
@@ -460,7 +501,7 @@ function preview() {
   if (!validateQuote()) return;
   if (!saveQuote()) return;
   showDialog(
-    `${modalHeader("Sua proposta está pronta.", "Uma apresentação do seu trabalho, com os valores para o cliente.")}<div class="proposal-toolbar"><label>Status <select id="quote-status">${["Rascunho", "Enviado", "Aprovado", "Recusado"].map((s) => `<option ${s === quote.status ? "selected" : ""}>${s}</option>`).join("")}</select></label><div><button class="button secondary" data-action="copy-proposal">${icon("copy")} Copiar texto</button><button class="button secondary" data-action="download-proposal">${icon("download")} Baixar proposta</button><button class="button primary" data-action="print-proposal">${icon("file")} Salvar PDF / Imprimir</button></div></div><div class="proposal-preview"><style>${proposalCSS.replaceAll("body{", ".proposal-preview{").replaceAll("@media print{", "@media print{")}</style>${proposalBody(quote, { ...pricing(), ...businessSettings() })}</div>`,
+    `${modalHeader("Sua proposta está pronta.", "Uma apresentação do seu trabalho, com os valores para o cliente.")}<div class="export-customer"><label for="proposal-customer-type">Exportar proposta para</label><select id="proposal-customer-type">${customerTypeOptions(quote.customerType ?? "retail")}</select><span id="export-pricing-note">${exportPricingNote()}</span></div><div class="proposal-toolbar"><label>Status <select id="quote-status">${["Rascunho", "Enviado", "Aprovado", "Recusado"].map((s) => `<option ${s === quote.status ? "selected" : ""}>${s}</option>`).join("")}</select></label><div><button class="button secondary" data-action="copy-proposal">${icon("copy")} Copiar texto</button><button class="button secondary" data-action="download-proposal">${icon("download")} Baixar proposta</button><button class="button primary" data-action="print-proposal">${icon("file")} Salvar PDF / Imprimir</button></div></div><div class="proposal-preview"><style>${proposalCSS.replaceAll("body{", ".proposal-preview{").replaceAll("@media print{", "@media print{")}</style>${proposalBody(quote, { ...pricing(), ...businessSettings() })}</div>`,
     "proposal-dialog",
   );
 }
@@ -671,7 +712,7 @@ const handlers = {
   "download-proposal": () => {
     download(
       proposalDocument(quote, customerSettings()),
-      `${quote.number || "proposta"}-Barotto3D.html`,
+      `${quote.number || "proposta"}-${quote.customerType === "wholesale" ? "lojista" : "consumidor-final"}-Barotto3D.html`,
       "text/html;charset=utf-8",
     );
     toast("Proposta baixada. O arquivo abre em qualquer navegador.");
@@ -720,6 +761,7 @@ const handlers = {
   "confirm-restore": () => {
     const original = store;
     store = pendingBackup;
+    store.settings = normalizePricing(store.settings);
     storageBlocked = false;
     if (persist()) {
       quote = store.draft || newQuote();
@@ -792,6 +834,22 @@ document.addEventListener("input", (event) => {
 });
 document.addEventListener("change", async (event) => {
   const el = event.target;
+  if (el.id === "proposal-customer-type") {
+    const previous = quote.customerType;
+    quote.customerType = el.value;
+    if (saveQuote()) {
+      document.querySelector(".proposal-preview").innerHTML =
+        `<style>${proposalCSS.replaceAll("body{", ".proposal-preview{")}</style>${proposalBody(quote, customerSettings())}`;
+      document.querySelector("#export-pricing-note").textContent =
+        exportPricingNote();
+      toast(
+        `Proposta atualizada para ${customerLabel(quote.customerType).toLowerCase()}.`,
+      );
+    } else {
+      quote.customerType = previous;
+      el.value = previous ?? "retail";
+    }
+  }
   if (el.id === "status-filter") {
     statusFilter = el.value;
     shell();
@@ -827,7 +885,7 @@ document.addEventListener("change", async (event) => {
   }
 });
 function settingsFromForm(form, base) {
-  const next = { ...base };
+  const next = normalizePricing(base);
   form.querySelectorAll("[data-setting]").forEach((el) => {
     next[el.dataset.setting] =
       el.type === "number"

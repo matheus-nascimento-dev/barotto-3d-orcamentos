@@ -44,7 +44,34 @@ export function number(value, label = "Valor", min = 0, max = 1e9) {
     throw new Error(`${label}: informe um valor entre ${min} e ${max}.`);
   return result;
 }
-export function calculateItem(item, settings = defaults) {
+export function normalizePricing(settings = defaults) {
+  return {
+    ...defaults,
+    ...settings,
+    markupWholesale:
+      settings.markupWholesale ?? settings.markup ?? defaults.markup,
+  };
+}
+export function customerLabel(type = "retail") {
+  if (!["retail", "wholesale"].includes(type))
+    throw new Error("Tipo de cliente inválido.");
+  return type === "wholesale" ? "Lojista" : "Consumidor final";
+}
+export function selectedMarkup(settings = defaults, type = "retail") {
+  customerLabel(type);
+  const normalized = normalizePricing(settings);
+  return number(
+    type === "wholesale" ? normalized.markupWholesale : normalized.markup,
+    "Markup",
+    1,
+    100,
+  );
+}
+export function calculateItem(
+  item,
+  settings = defaults,
+  customerType = "retail",
+) {
   const s = { ...defaults, ...settings };
   const quantity = number(item.quantity, "Quantidade", 1, 100000);
   if (!Number.isInteger(quantity))
@@ -72,7 +99,8 @@ export function calculateItem(item, settings = defaults) {
     number(item.extra ?? 0, "Custo extra");
   const reserve = (base * number(s.failure, "Falhas", 0, 100)) / 100;
   const cost = round(base + reserve);
-  const suggested = round(cost * number(s.markup, "Markup", 1, 100));
+  const markup = selectedMarkup(settings, customerType);
+  const suggested = round(cost * markup);
   const unitPrice =
     item.price === null || item.price === undefined || item.price === ""
       ? suggested
@@ -90,10 +118,15 @@ export function calculateItem(item, settings = defaults) {
     unitPrice,
     total: round(unitPrice * quantity),
     quantity,
+    markup,
   };
 }
 export function calculateQuote(quote, settings = defaults) {
-  const items = quote.items.map((item) => calculateItem(item, settings));
+  const customerType = quote.customerType ?? "retail";
+  customerLabel(customerType);
+  const items = quote.items.map((item) =>
+    calculateItem(item, settings, customerType),
+  );
   const subtotal = round(items.reduce((v, i) => v + i.total, 0));
   const discount = Math.min(
     round(number(quote.discount ?? 0, "Desconto")),
@@ -184,6 +217,8 @@ function validateItem(item, settings) {
   calculateItem(item, settings);
 }
 function validateProduction(settings) {
+  selectedMarkup(settings, "retail");
+  selectedMarkup(settings, "wholesale");
   calculateItem(
     {
       quantity: 1,
@@ -212,7 +247,7 @@ export function parseBackup(text) {
     throw new Error("Este arquivo não é um backup válido do 3DOrça.");
   if (data.quotes.length > 10000 || data.catalog.length > 10000)
     throw new Error("Backup excede o limite de registros.");
-  const settings = { ...defaults, ...data.settings };
+  const settings = normalizePricing(data.settings);
   validateProduction(settings);
   number(settings.validity, "Validade", 1, 365);
   number(settings.lead, "Prazo", 1, 365);

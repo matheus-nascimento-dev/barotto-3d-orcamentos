@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { proposalDocument, quoteText } from "../proposal.js";
 import {
   calculateItem,
   calculateQuote,
@@ -8,6 +9,7 @@ import {
   parseBackup,
   writeStore,
   readStore,
+  normalizePricing,
 } from "../core.js";
 
 const config = {
@@ -224,4 +226,98 @@ test("backup vazio também valida limites de configuração da produção", () =
       ),
     );
   }
+});
+
+test("consumidor final e lojista usam markups independentes sobre o mesmo custo", () => {
+  const settings = { ...config, markup: 3, markupWholesale: 2 };
+  const retail = calculateQuote(
+    { items: [item], customerType: "retail" },
+    settings,
+  );
+  const wholesale = calculateQuote(
+    { items: [item], customerType: "wholesale" },
+    settings,
+  );
+  assert.equal(retail.cost, 33);
+  assert.equal(wholesale.cost, 33);
+  assert.equal(retail.total, 99);
+  assert.equal(wholesale.total, 66);
+});
+test("preço manual é mantido ao trocar o tipo de cliente", () => {
+  const quote = { items: [{ ...item, price: 20 }], customerType: "wholesale" };
+  assert.equal(
+    calculateQuote(quote, { ...config, markupWholesale: 2 }).total,
+    40,
+  );
+});
+test("orçamentos antigos preservam preço e usam o markup anterior como fallback", () => {
+  const legacy = { ...config, markup: 4 };
+  delete legacy.markupWholesale;
+  assert.equal(calculateQuote({ items: [item] }, legacy).total, 132);
+  assert.equal(
+    calculateQuote({ items: [item], customerType: "wholesale" }, legacy).total,
+    132,
+  );
+});
+test("proposta lojista usa o preço correto sem revelar markups", () => {
+  const result = publicQuote(
+    { items: [item], customerType: "wholesale" },
+    { ...config, markupWholesale: 2 },
+  );
+  assert.equal(result.total, 66);
+  assert.ok(!JSON.stringify(result).includes("markup"));
+});
+test("backup valida o markup de lojista mesmo quando não há produtos", () => {
+  for (const markupWholesale of [0, -2, 101, "inválido"]) {
+    assert.throws(() =>
+      parseBackup(
+        JSON.stringify({
+          version: 1,
+          settings: { ...config, markupWholesale },
+          quotes: [],
+          catalog: [],
+          draft: null,
+        }),
+      ),
+    );
+  }
+});
+test("tipos de cliente desconhecidos são rejeitados", () => {
+  assert.throws(() =>
+    calculateQuote({ items: [item], customerType: "outro" }, config),
+  );
+});
+test("HTML e texto exportados usam o tipo de cliente escolhido", () => {
+  const quote = { items: [item], customerType: "wholesale" };
+  const settings = { ...config, markupWholesale: 2 };
+  const html = proposalDocument(quote, settings),
+    text = quoteText(quote, settings);
+  for (const result of [html, text]) {
+    assert.match(result, /66,00/);
+    assert.doesNotMatch(result, /markup|Lucro estimado|Custo de produção/);
+  }
+});
+test("migração inicia os dois tipos com o markup anterior e restaura snapshots independentes", () => {
+  const legacy = normalizePricing({ markup: 4 });
+  assert.equal(legacy.markup, 4);
+  assert.equal(legacy.markupWholesale, 4);
+  const data = {
+    version: 1,
+    settings: { ...config, markupWholesale: 5 },
+    quotes: [
+      {
+        id: "q1",
+        items: [item],
+        customerType: "wholesale",
+        pricing: { ...config, markupWholesale: 2 },
+      },
+    ],
+    catalog: [],
+    draft: null,
+  };
+  const restored = parseBackup(JSON.stringify(data));
+  assert.equal(
+    calculateQuote(restored.quotes[0], restored.quotes[0].pricing).total,
+    66,
+  );
 });

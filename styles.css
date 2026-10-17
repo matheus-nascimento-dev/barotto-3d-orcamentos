@@ -13,6 +13,93 @@
   --font: "DM Sans", Arial, sans-serif;
   --display: "Manrope", Arial, sans-serif;
 }
+.catalog-prices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0;
+}
+.catalog-prices > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.catalog-prices > div > span {
+  font-size: 11px;
+  color: #637356;
+}
+.catalog-prices strong {
+  font: 650 21px var(--display);
+  letter-spacing: -0.5px;
+}
+.fixed-price-note {
+  color: #637356;
+  display: block;
+  margin: -12px 0 20px;
+  font-size: 10px;
+}
+.customer-pricing-hint {
+  align-self: end;
+  font-size: 10px;
+  color: #637356;
+  margin: 0 0 2px;
+}
+.summary-customer-type {
+  font-size: 11px;
+  color: #49673d;
+  background: #eff5e7;
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin: -10px 0 22px;
+}
+.export-customer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #eaf1e1;
+  border: 1px solid #dce6cf;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.export-customer > label {
+  color: #3e6036;
+  font-size: 12px;
+  font-weight: 600;
+}
+.export-customer > select {
+  background: #fff;
+  color: #34582e;
+  border: 1px solid #c5d6b3;
+  border-radius: 5px;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.export-customer > span {
+  font-size: 10px;
+  color: #637356;
+  margin-left: auto;
+  max-width: 240px;
+}
+@media (max-width: 560px) {
+  .export-customer {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .export-customer > span {
+    margin: 0;
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .export-customer > select {
+    flex: 1;
+    font-size: 16px;
+  }
+  .customer-pricing-hint {
+    grid-column: 1/-1;
+  }
+}
 * {
   box-sizing: border-box;
 }
