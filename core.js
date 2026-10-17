@@ -72,7 +72,7 @@ export function calculateItem(
   settings = defaults,
   customerType = "retail",
 ) {
-  const s = { ...defaults, ...settings };
+  const s = normalizePricing(item.catalogPricing ?? settings);
   const quantity = number(item.quantity, "Quantidade", 1, 100000);
   if (!Number.isInteger(quantity))
     throw new Error("Quantidade deve ser um número inteiro.");
@@ -112,7 +112,7 @@ export function calculateItem(
   const reserve = (base * number(s.failure, "Falhas", 0, 100)) / 100;
   const cost = round(base + reserve);
   const preciseCost = inputBasis === "batch" ? base + reserve : cost;
-  const markup = selectedMarkup(settings, customerType);
+  const markup = selectedMarkup(s, customerType);
   const suggested = round(cost * markup);
   const unitPrice =
     item.price === null || item.price === undefined || item.price === ""
@@ -139,6 +139,18 @@ export function calculateItem(
     quantity,
     markup,
   };
+}
+export function catalogQuoteItem(product, settings = defaults, quantity = 1, id = uid()) {
+  const result = {
+    ...structuredClone(product),
+    id,
+    quantity,
+    catalogId: product.id,
+    catalogPricing: normalizePricing(settings),
+  };
+  calculateItem(result, settings, "retail");
+  calculateItem(result, settings, "wholesale");
+  return result;
 }
 export function calculateQuote(quote, settings = defaults) {
   const customerType = quote.customerType ?? "retail";
@@ -230,6 +242,12 @@ function validateItem(item, settings) {
   validateId(item.id);
   for (const key of ["id", "name", "material", "color", "note", "kind"])
     validateText(item[key], key);
+  if (item.catalogPricing !== undefined) {
+    if (!item.catalogPricing || typeof item.catalogPricing !== "object" || Array.isArray(item.catalogPricing))
+      throw new Error("Preços do produto cadastrado inválidos no backup.");
+    validateId(item.catalogId);
+    validateProduction(item.catalogPricing);
+  }
   calculateItem(item, settings);
 }
 function validateProduction(settings) {

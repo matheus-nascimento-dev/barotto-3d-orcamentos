@@ -10,7 +10,30 @@ import {
   writeStore,
   readStore,
   normalizePricing,
+  catalogQuoteItem,
 } from "../core.js";
+
+test("produto cadastrado usa seu preço unitário mesmo com custos diferentes no orçamento", () => {
+  const product = { ...item, productionQuantity: 10, inputBasis: "batch", quantity: 60,
+    catalogId: "catalog-1", catalogPricing: { ...config, markupWholesale: 2 } };
+  const quoteCosts = { ...config, fixed: 10000, markup: 10, markupWholesale: 8 };
+  const retail = calculateItem(product, quoteCosts, "retail");
+  const wholesale = calculateItem(product, quoteCosts, "wholesale");
+  assert.equal(retail.unitPrice, 13.86);
+  assert.equal(retail.total, 831.6);
+  assert.equal(wholesale.unitPrice, 9.24);
+  assert.equal(wholesale.total, 554.4);
+  assert.equal(retail.cost, 4.62);
+});
+
+test("exportação usa o preço cadastrado para o tipo selecionado sem expor a origem interna", () => {
+  const q = { items: [{ ...item, quantity: 60, catalogId: "catalog-1",
+    catalogPricing: { ...config, markupWholesale: 2 } }], customerType: "wholesale" };
+  const output = publicQuote(q, { ...config, markupWholesale: 9 });
+  assert.equal(output.items[0].unitPrice, 33);
+  assert.equal(output.total, 1980);
+  assert.doesNotMatch(JSON.stringify(output), /catalogPricing|catalogId|productionQuantity/);
+});
 
 const config = {
   ...defaults,
@@ -41,6 +64,39 @@ const item = {
   minutes: 0,
   price: null,
 };
+
+test("usar cadastro copia os dois preços e inicia com uma unidade solicitada, independente do lote", () => {
+  const source = { ...item, productionQuantity: 10, inputBasis: "batch" };
+  const settings = { ...config, markupWholesale: 2 };
+  const copied = catalogQuoteItem(source, settings);
+  assert.equal(copied.quantity, 1);
+  assert.equal(copied.catalogId, "p1");
+  assert.notEqual(copied.id, source.id);
+  source.grams = 99999;
+  settings.markup = 20;
+  copied.quantity = 60;
+  assert.equal(calculateItem(copied, settings).total, 831.6);
+  assert.equal(calculateItem(copied, settings, "wholesale").total, 554.4);
+});
+
+test("preço fixo cadastrado é multiplicado pelas unidades solicitadas para ambos os clientes", () => {
+  const copied = catalogQuoteItem({ ...item, price: 5.58 }, config, 60);
+  for (const type of ["retail", "wholesale"]) {
+    const result = calculateItem(copied, { ...config, markup: 9 }, type);
+    assert.equal(result.unitPrice, 5.58);
+    assert.equal(result.total, 334.8);
+  }
+});
+
+test("backup preserva preços cadastrados e rejeita parâmetros inválidos da cópia", () => {
+  const copied = catalogQuoteItem(item, { ...config, markupWholesale: 2 }, 60);
+  const data = { version: 1, settings: { ...config, markup: 10 }, catalog: [item], quotes: [],
+    draft: { id: "q1", items: [copied], customerType: "wholesale" } };
+  const restored = parseBackup(JSON.stringify(data));
+  assert.equal(calculateQuote(restored.draft, restored.settings).total, 1980);
+  data.draft.items[0].catalogPricing.life = 0;
+  assert.throws(() => parseBackup(JSON.stringify(data)));
+});
 
 test("custo inclui material, energia, desgaste, fixos, embalagem e reserva", () => {
   const result = calculateItem(item, config);
