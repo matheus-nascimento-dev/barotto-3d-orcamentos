@@ -1,4 +1,21 @@
 export const STORE_KEY = "3dorca.v1";
+export const MAX_IMAGE_LENGTH = 120000;
+export function productImage(value) {
+  if (value == null || value === "") return "";
+  if (typeof value !== "string" || value.length > MAX_IMAGE_LENGTH)
+    throw new Error("Imagem do produto inválida ou muito grande.");
+  const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
+  if (!match || match[2].length % 4 !== 0)
+    throw new Error("Use uma imagem PNG, JPG ou WebP salva pelo sistema.");
+  const bytes = atob(match[2]);
+  const valid = match[1] === "png"
+    ? bytes.startsWith("\x89PNG\r\n\x1a\n")
+    : match[1] === "jpeg"
+      ? bytes.startsWith("\xff\xd8\xff")
+      : bytes.startsWith("RIFF") && bytes.slice(8, 12) === "WEBP";
+  if (!valid) throw new Error("Conteúdo da imagem do produto inválido.");
+  return value;
+}
 export const defaults = Object.freeze({
   company: "Barotto 3D",
   contact: "",
@@ -219,6 +236,7 @@ export function publicQuote(quote, settings = defaults) {
       material: i.material,
       color: i.color,
       note: i.note,
+      ...(i.image ? { image: productImage(i.image) } : {}),
       quantity: i.quantity,
       unitPrice: calc.items[index].unitPrice,
       total: calc.items[index].total,
@@ -249,6 +267,7 @@ function validateItem(item, settings) {
   if (!item || typeof item !== "object")
     throw new Error("Produto inválido no backup.");
   validateId(item.id);
+  productImage(item.image);
   for (const key of ["id", "name", "material", "color", "note", "kind"])
     validateText(item[key], key);
   if (item.catalogPricing !== undefined) {

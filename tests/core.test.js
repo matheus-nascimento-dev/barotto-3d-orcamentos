@@ -65,6 +65,32 @@ const item = {
   price: null,
 };
 
+const sampleImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jhZkAAAAASUVORK5CYII=";
+
+test("foto cadastrada acompanha produto, backup e proposta HTML sem arquivo externo", () => {
+  const product = { ...item, image: sampleImage };
+  const copied = catalogQuoteItem(product, config);
+  const data = { version: 1, settings: config, catalog: [product],
+    quotes: [{ id: "q1", items: [copied] }], draft: null };
+  const restored = parseBackup(JSON.stringify(data));
+  assert.equal(restored.catalog[0].image, sampleImage);
+  assert.equal(restored.quotes[0].items[0].image, sampleImage);
+  const exported = publicQuote(restored.quotes[0], config);
+  assert.equal(exported.items[0].image, sampleImage);
+  const html = proposalDocument(restored.quotes[0], config);
+  assert.ok(html.includes(`<img src="${sampleImage}"`));
+  assert.doesNotMatch(JSON.stringify(exported), /catalogPricing|catalogId/);
+});
+
+test("backup recusa fotos externas, SVG, dados inválidos e imagens grandes", () => {
+  for (const image of ["https://example.com/photo.jpg", "javascript:alert(1)",
+    'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=', 'data:image/png;base64,not an image',
+    'data:image/png;base64,' + 'A'.repeat(140000), { src: sampleImage }]) {
+    const data = { version: 1, settings: config, catalog: [{ ...item, image }], quotes: [], draft: null };
+    assert.throws(() => parseBackup(JSON.stringify(data)));
+  }
+});
+
 test("lote do PDF inclui energia uma vez e divide o custo completo entre cinco peças", () => {
   const product = { ...item, grams: 16, hours: 0.5, filament: 120,
     productionQuantity: 5, inputBasis: "batch", quantity: 5 };

@@ -10,6 +10,8 @@ import {
   uid,
   number,
   calculateItem,
+  MAX_IMAGE_LENGTH,
+  productImage,
   catalogQuoteItem,
   calculateQuote,
   parseBackup,
@@ -69,6 +71,7 @@ const date = (v) =>
 const blankItem = () => ({
   id: uid(),
   name: "",
+  image: "",
   material: "PLA",
   color: "",
   grams: 0,
@@ -187,7 +190,11 @@ function persist() {
       badge.classList.remove("unsaved");
     }
     return true;
-  } catch {
+  } catch (error) {
+    if (error.name === "QuotaExceededError") {
+      toast("O espaço do navegador está cheio. Baixe um backup e remova fotos ou registros antes de salvar novamente.", true);
+      return false;
+    }
     storageBlocked = true;
     toast(
       "Não foi possível salvar no navegador. Baixe um backup em Configurações.",
@@ -317,6 +324,56 @@ function productArt(index = 0) {
     ? `<svg viewBox="0 0 88 88" aria-hidden="true"><defs><linearGradient id="v${index}" x1="0" x2="1"><stop stop-color="#73957a"/><stop offset=".5" stop-color="#b4c9a2"/><stop offset="1" stop-color="#5e8068"/></linearGradient></defs><ellipse cx="44" cy="75" rx="27" ry="5" fill="#254433" opacity=".10"/><path d="M22 24c-2 13 6 18 7 27s-5 16 1 21q14 7 29 0c6-5 0-12 1-21s9-14 7-27Z" fill="url(#v${index})"/><ellipse cx="44.5" cy="24" rx="22.5" ry="7" fill="#607c61"/><ellipse cx="44.5" cy="24" rx="18" ry="4.5" fill="#344e39"/><g fill="none" stroke="#d8e5c7" stroke-width="1" opacity=".55"><path d="M25 33q20 13 39 0M28 40q17 13 32 0M30 47q14 12 29 0M30 54q14 11 29 0M29 61q15 11 31 0M29 68q15 10 31 0"/></g></svg>`
     : `<svg viewBox="0 0 88 88" aria-hidden="true"><ellipse cx="44" cy="73" rx="28" ry="5" fill="#1d3833" opacity=".1"/><path d="m19 62 33-8 21 11-35 10z" fill="#63716c"/><path d="m38 67 2-37 25-9-9 39-18 7z" fill="#75847a"/><path d="m40 30-8-5 25-8 8 4z" fill="#a6afa5"/><path d="m32 25-1 34 7 8 2-37z" fill="#42554b"/><path d="m19 62 19 9 35-6v4l-35 10-19-12z" fill="#354b40"/><path d="m41 37 17-6m-18 12 17-6m-18 12 16-6m-17 12 16-6" stroke="#a1aca1" opacity=".45"/></svg>`;
 }
+function productVisual(item, index = 0) {
+  return item.image
+    ? `<img class="product-photo" src="${e(item.image)}" alt="Foto de ${e(item.name || "produto")}" loading="lazy">`
+    : productArt(index);
+}
+function photoEditor(item) {
+  return `<section class="photo-editor"><div class="photo-preview">${item.image ? `<img src="${e(item.image)}" alt="Prévia da foto do produto">` : `<span>${icon("box")}<small>Produto sem foto</small></span>`}</div><div class="photo-editor-controls"><strong>Foto do produto</strong><p>Aparece no catálogo, no orçamento e na proposta para o cliente.</p><input type="hidden" data-key="image" value="${e(item.image || "")}"><input type="file" id="product-image-file" accept="image/jpeg,image/png,image/webp" hidden><div class="photo-editor-buttons"><button type="button" class="button secondary" data-action="image-choose">${icon("upload")} ${item.image ? "Trocar imagem" : "Escolher imagem"}</button><button type="button" class="text-button danger" data-action="image-remove" ${item.image ? "" : "hidden"}>Remover imagem</button></div><small class="photo-status" role="status">JPG, PNG ou WebP, até 10 MB. A imagem é reduzida automaticamente e salva neste navegador.</small></div></section>`;
+}
+async function prepareProductImage(file) {
+  if (!file || !["image/jpeg", "image/png", "image/webp"].includes(file.type))
+    throw new Error("Escolha uma imagem JPG, PNG ou WebP.");
+  if (file.size > 10 * 1024 * 1024)
+    throw new Error("Escolha uma imagem de até 10 MB.");
+  const url = URL.createObjectURL(file);
+  try {
+    const photo = new Image();
+    photo.src = url;
+    try {
+      await photo.decode();
+    } catch {
+      throw new Error("Não foi possível abrir esta imagem. Escolha outro arquivo JPG, PNG ou WebP.");
+    }
+    if (!photo.naturalWidth || !photo.naturalHeight || photo.naturalWidth * photo.naturalHeight > 40e6)
+      throw new Error("Use uma imagem com até 40 megapixels.");
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar a imagem neste navegador.");
+    let edge = 800;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const scale = Math.min(1, edge / Math.max(photo.naturalWidth, photo.naturalHeight));
+      canvas.width = Math.max(1, Math.round(photo.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(photo.naturalHeight * scale));
+      context.drawImage(photo, 0, 0, canvas.width, canvas.height);
+      const encoded = canvas.toDataURL("image/webp", Math.max(0.5, 0.84 - attempt * 0.05));
+      if (encoded.length <= MAX_IMAGE_LENGTH) return productImage(encoded);
+      edge *= 0.8;
+    }
+    throw new Error("Não foi possível reduzir esta imagem. Escolha uma foto menor.");
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+function setEditorImage(form, value) {
+  form.querySelector('[data-key="image"]').value = value;
+  form.querySelector(".photo-preview").innerHTML = value
+    ? `<img src="${e(value)}" alt="Prévia da foto do produto">`
+    : `<span>${icon("box")}<small>Produto sem foto</small></span>`;
+  form.querySelector('[data-action="image-choose"]').innerHTML = `${icon("upload")} ${value ? "Trocar imagem" : "Escolher imagem"}`;
+  form.querySelector('[data-action="image-remove"]').hidden = !value;
+}
 function productionHint(item) {
   const count = item.productionQuantity ?? 1;
   return (item.inputBasis ?? "unit") === "batch"
@@ -398,7 +455,7 @@ function catalogProductCard(item, index) {
   const cost = calculateItem(item, pricing(), quote.customerType ?? "retail");
   const source = matchingCatalogProduct(item);
   return `<details class="product-card" data-product="${item.id}" ${index === 0 ? "open" : ""}>
-    <summary><span class="product-art art-${index % 2}">${productArt(index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")} · CATÁLOGO</span><strong data-product-title="${item.id}">${e(item.name)}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} · ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(cost.total)}</strong><small>${item.quantity} unidades</small></span><span class="expand-icon">${icon("down")}</span></summary>
+    <summary><span class="product-art art-${index % 2}">${productVisual(item, index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")} · CATÁLOGO</span><strong data-product-title="${item.id}">${e(item.name)}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} · ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(cost.total)}</strong><small>${item.quantity} unidades</small></span><span class="expand-icon">${icon("down")}</span></summary>
     <div class="product-content"><p class="catalog-order-note">Preço unitário do produto cadastrado × quantidade solicitada. Os dados de produção são definidos em Meus produtos.</p>
     <div class="form-grid">${field("Quantidade no orçamento", "quantity", item.quantity, { scope: item.id, type: "number", min: 1, max: 100000, step: 1, unit: "un.", required: true })}<div class="catalog-order-price"><span>Preço unitário cadastrado</span><strong data-catalog-unit-price="${item.id}">${money(cost.unitPrice)}</strong><small data-catalog-price-type="${item.id}">${customerLabel(quote.customerType ?? "retail")}</small></div>${field("Descrição para a proposta", "note", item.note, { scope: item.id, wide: true })}</div>
     <div class="production-costs" data-costs="${item.id}">${catalogOrderCosts(item, cost)}</div>
@@ -407,7 +464,7 @@ function catalogProductCard(item, index) {
 function productCard(item, index) {
   if (item.catalogPricing) return catalogProductCard(item, index);
   const s = calculateItem(item, pricing(), quote.customerType ?? "retail");
-  return `<details class="product-card" data-product="${item.id}" ${index === 0 ? "open" : ""}><summary><span class="product-art art-${index % 2}">${productArt(index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")}</span><strong data-product-title="${item.id}">${e(item.name || "Novo produto")}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} <span>·</span> ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(s.total)}</strong><small>${item.quantity} ${item.quantity > 1 ? "unidades" : "unidade"}</small></span><span class="expand-icon">${icon("down")}</span></summary><div class="product-content"><div class="form-grid three-cols">${field("Nome do produto", "name", item.name, { scope: item.id, required: true, wide: true, placeholder: "O que vamos imprimir?" })}${select("Material", "material", item.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], item.id)}${field("Cor / acabamento", "color", item.color, { scope: item.id, placeholder: "Ex.: Preto fosco" })}${field("Quantidade no orçamento", "quantity", item.quantity, { scope: item.id, type: "number", min: 1, max: 100000, step: 1, unit: "un.", required: true })}</div><details class="extra-costs"><summary>Dados de produção do produto avulso ${icon("down")}</summary>${itemProductionFields(item)}<div class="form-grid three-cols">${field("Peso de material informado", "grams", item.grams, { scope: item.id, type: "number", unit: "g", max: 1000000, required: true })}${field("Tempo de impressão informado", "hours", item.hours, { scope: item.id, type: "number", unit: "horas", max: 100000, required: true })}${field("Preço do material", "filament", item.filament, { scope: item.id, type: "number", unit: "R$/kg", required: true })}</div><details class="extra-costs"><summary>Acabamento e custos adicionais ${icon("plus")}</summary><div class="form-grid">${field("Tempo de acabamento informado", "minutes", item.minutes, { scope: item.id, type: "number", unit: "min", max: 100000 })}${field("Custos extras informados", "extra", item.extra, { scope: item.id, type: "number", unit: "R$", max: 100000 })}${field("Descrição para a proposta", "note", item.note, { scope: item.id, wide: true, placeholder: "Dimensões, personalização ou acabamento" })}</div></details></details><div class="production-costs" data-costs="${item.id}">${productionCosts(item, s, true)}</div><div class="product-price-row"><div><span class="label">Preço de venda por unidade</span><span class="price-help" data-price-help="${item.id}">Sugestão: ${money(s.suggested)} <span>· markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}× · ${customerLabel(quote.customerType ?? "retail")}</span></span></div><label class="price-input"><span>R$</span><input aria-label="Preço de venda de ${e(item.name || "novo produto")}" type="number" min="0" max="1000000000" step="0.01" data-item="${item.id}" data-key="price" value="${item.price ?? ""}" placeholder="${s.suggested.toFixed(2)}" title="Deixe em branco para usar o preço sugerido"></label></div><div class="product-actions">${matchingCatalogProduct(item) ? `<button type="button" class="text-button" data-action="catalog-refresh" data-id="${item.id}">${icon("box")} Usar preço do catálogo</button>` : `<button type="button" class="text-button" data-action="catalog-save" data-id="${item.id}">${icon("box")} Salvar no catálogo</button>`}<div><button type="button" class="icon-button" title="Duplicar produto" aria-label="Duplicar ${e(item.name || "produto")}" data-action="duplicate-item" data-id="${item.id}">${icon("copy")}</button><button type="button" class="icon-button danger" title="Remover produto" aria-label="Remover ${e(item.name || "produto")}" data-action="remove-item" data-id="${item.id}">${icon("trash")}</button></div></div></div></details>`;
+  return `<details class="product-card" data-product="${item.id}" ${index === 0 ? "open" : ""}><summary><span class="product-art art-${index % 2}">${productVisual(item, index)}</span><span class="product-identity"><span class="product-number">PRODUTO ${String(index + 1).padStart(2, "0")}</span><strong data-product-title="${item.id}">${e(item.name || "Novo produto")}</strong><span class="product-meta" data-product-meta="${item.id}">${e(item.material)} <span>·</span> ${e(item.color || "Cor a definir")}</span></span><span class="product-head-price" data-product-total="${item.id}"><strong>${money(s.total)}</strong><small>${item.quantity} ${item.quantity > 1 ? "unidades" : "unidade"}</small></span><span class="expand-icon">${icon("down")}</span></summary><div class="product-content"><div class="form-grid three-cols">${field("Nome do produto", "name", item.name, { scope: item.id, required: true, wide: true, placeholder: "O que vamos imprimir?" })}${select("Material", "material", item.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], item.id)}${field("Cor / acabamento", "color", item.color, { scope: item.id, placeholder: "Ex.: Preto fosco" })}${field("Quantidade no orçamento", "quantity", item.quantity, { scope: item.id, type: "number", min: 1, max: 100000, step: 1, unit: "un.", required: true })}</div><details class="extra-costs"><summary>Dados de produção do produto avulso ${icon("down")}</summary>${itemProductionFields(item)}<div class="form-grid three-cols">${field("Peso de material informado", "grams", item.grams, { scope: item.id, type: "number", unit: "g", max: 1000000, required: true })}${field("Tempo de impressão informado", "hours", item.hours, { scope: item.id, type: "number", unit: "horas", max: 100000, required: true })}${field("Preço do material", "filament", item.filament, { scope: item.id, type: "number", unit: "R$/kg", required: true })}</div><details class="extra-costs"><summary>Acabamento e custos adicionais ${icon("plus")}</summary><div class="form-grid">${field("Tempo de acabamento informado", "minutes", item.minutes, { scope: item.id, type: "number", unit: "min", max: 100000 })}${field("Custos extras informados", "extra", item.extra, { scope: item.id, type: "number", unit: "R$", max: 100000 })}${field("Descrição para a proposta", "note", item.note, { scope: item.id, wide: true, placeholder: "Dimensões, personalização ou acabamento" })}</div></details></details><div class="production-costs" data-costs="${item.id}">${productionCosts(item, s, true)}</div><div class="product-price-row"><div><span class="label">Preço de venda por unidade</span><span class="price-help" data-price-help="${item.id}">Sugestão: ${money(s.suggested)} <span>· markup ${selectedMarkup(pricing(), quote.customerType ?? "retail")}× · ${customerLabel(quote.customerType ?? "retail")}</span></span></div><label class="price-input"><span>R$</span><input aria-label="Preço de venda de ${e(item.name || "novo produto")}" type="number" min="0" max="1000000000" step="0.01" data-item="${item.id}" data-key="price" value="${item.price ?? ""}" placeholder="${s.suggested.toFixed(2)}" title="Deixe em branco para usar o preço sugerido"></label></div><div class="product-actions">${matchingCatalogProduct(item) ? `<button type="button" class="text-button" data-action="catalog-refresh" data-id="${item.id}">${icon("box")} Usar preço do catálogo</button>` : `<button type="button" class="text-button" data-action="catalog-save" data-id="${item.id}">${icon("box")} Salvar no catálogo</button>`}<div><button type="button" class="icon-button" title="Duplicar produto" aria-label="Duplicar ${e(item.name || "produto")}" data-action="duplicate-item" data-id="${item.id}">${icon("copy")}</button><button type="button" class="icon-button danger" title="Remover produto" aria-label="Remover ${e(item.name || "produto")}" data-action="remove-item" data-id="${item.id}">${icon("trash")}</button></div></div></div></details>`;
 }
 function updateSummary() {
   if (view !== "editor") return;
@@ -532,7 +589,7 @@ function overview() {
   }`;
 }
 function catalog() {
-  return `${pageHead("CRIE UMA VEZ. REUTILIZE SEMPRE.", 'Meus produtos<span class="heading-dot">.</span>', "Suas peças favoritas, prontas para o próximo orçamento.", `<button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`)}<div class="info-strip">${icon("box")} O orçamento usa o preço unitário cadastrado para consumidor final ou lojista, multiplicado pela quantidade solicitada.</div>${store.catalog.length ? `<div class="catalog-grid">${store.catalog.map((p, i) => `<article class="panel catalog-card"><div class="catalog-art">${productArt(i)}</div><div class="catalog-card-content"><span class="eyebrow">${e(p.material)} · ${e(p.color || "COR A DEFINIR")}</span><h2>${e(p.name)}</h2><div class="catalog-meta"><span>${p.grams} g · ${p.hours} h informados</span></div><div class="catalog-batch-label">${p.productionQuantity ?? 1} peça(s) no lote · ${(p.inputBasis ?? "unit") === "batch" ? "Dados do lote inteiro" : "Dados por unidade"}</div><div class="production-costs">${productionCosts(p, calculateItem(p, store.settings))}</div><div class="catalog-pricing-label">PREÇO DE VENDA POR UNIDADE</div><div class="catalog-prices"><div><span>Consumidor final</span><strong>${money(calculateItem(p, store.settings, "retail").unitPrice)} <small>/ un.</small></strong></div><div><span>Lojista</span><strong>${money(calculateItem(p, store.settings, "wholesale").unitPrice)} <small>/ un.</small></strong></div></div>${p.price != null ? '<small class="fixed-price-note">Preço fixo: igual para os dois tipos de cliente.</small>' : ""}<div class="catalog-actions"><button class="button secondary" data-action="catalog-add" data-id="${p.id}">${icon("plus")} Usar no orçamento</button><button class="icon-button" aria-label="Editar ${e(p.name)}" data-action="catalog-edit" data-id="${p.id}">${icon("edit")}</button><button class="icon-button danger" aria-label="Excluir ${e(p.name)}" data-action="catalog-delete" data-id="${p.id}">${icon("trash")}</button></div></div></article>`).join("")}</div>` : empty("box", "Seu catálogo está esperando suas criações.", "Cadastre uma peça ou use “Salvar no catálogo” nos produtos do orçamento.", "Cadastrar primeiro produto", "catalog-new")}`;
+  return `${pageHead("CRIE UMA VEZ. REUTILIZE SEMPRE.", 'Meus produtos<span class="heading-dot">.</span>', "Suas peças favoritas, prontas para o próximo orçamento.", `<button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`)}<div class="info-strip">${icon("box")} O orçamento usa o preço unitário cadastrado para consumidor final ou lojista, multiplicado pela quantidade solicitada.</div>${store.catalog.length ? `<div class="catalog-grid">${store.catalog.map((p, i) => `<article class="panel catalog-card"><div class="catalog-art">${productVisual(p, i)}</div><div class="catalog-card-content"><span class="eyebrow">${e(p.material)} · ${e(p.color || "COR A DEFINIR")}</span><h2>${e(p.name)}</h2><div class="catalog-meta"><span>${p.grams} g · ${p.hours} h informados</span></div><div class="catalog-batch-label">${p.productionQuantity ?? 1} peça(s) no lote · ${(p.inputBasis ?? "unit") === "batch" ? "Dados do lote inteiro" : "Dados por unidade"}</div><div class="production-costs">${productionCosts(p, calculateItem(p, store.settings))}</div><div class="catalog-pricing-label">PREÇO DE VENDA POR UNIDADE</div><div class="catalog-prices"><div><span>Consumidor final</span><strong>${money(calculateItem(p, store.settings, "retail").unitPrice)} <small>/ un.</small></strong></div><div><span>Lojista</span><strong>${money(calculateItem(p, store.settings, "wholesale").unitPrice)} <small>/ un.</small></strong></div></div>${p.price != null ? '<small class="fixed-price-note">Preço fixo: igual para os dois tipos de cliente.</small>' : ""}<div class="catalog-actions"><button class="button secondary" data-action="catalog-add" data-id="${p.id}">${icon("plus")} Usar no orçamento</button><button class="icon-button" aria-label="Editar ${e(p.name)}" data-action="catalog-edit" data-id="${p.id}">${icon("edit")}</button><button class="icon-button danger" aria-label="Excluir ${e(p.name)}" data-action="catalog-delete" data-id="${p.id}">${icon("trash")}</button></div></div></article>`).join("")}</div>` : empty("box", "Seu catálogo está esperando suas criações.", "Cadastre uma peça ou use “Salvar no catálogo” nos produtos do orçamento.", "Cadastrar primeiro produto", "catalog-new")}`;
 }
 const productionFields = (s) =>
   `${field("Potência média da impressora", "power", s.power, { type: "number", scope: "settings", unit: "W" })}${field("Tarifa de energia", "kwh", s.kwh, { type: "number", scope: "settings", unit: "R$/kWh" })}${field("Valor da impressora", "printer", s.printer, { type: "number", scope: "settings", unit: "R$" })}${field("Vida útil da impressora", "life", s.life, { type: "number", scope: "settings", unit: "horas", min: 1, step: 1 })}${field("Custos fixos mensais", "fixed", s.fixed, { type: "number", scope: "settings", unit: "R$" })}${field("Produções mensais (lotes ou peças)", "monthly", s.monthly, { type: "number", scope: "settings", unit: "prod.", min: 1, step: 1 })}${field("Embalagem por produção (lote ou peça)", "packaging", s.packaging, { type: "number", scope: "settings", unit: "R$" })}${field("Hora de acabamento", "labor", s.labor, { type: "number", scope: "settings", unit: "R$/h" })}${field("Reserva para falhas", "failure", s.failure, { type: "number", scope: "settings", unit: "%", max: 100 })}${field("Markup — consumidor final", "markup", s.markup, { type: "number", scope: "settings", unit: "×", min: 1, max: 100, required: true })}${field("Markup — lojista", "markupWholesale", s.markupWholesale ?? s.markup, { type: "number", scope: "settings", unit: "×", min: 1, max: 100, required: true })}${field("Imposto sobre a venda", "tax", s.tax, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Taxa de pagamento", "card", s.card, { type: "number", scope: "settings", unit: "%", max: 99 })}${field("Anúncios sobre a venda", "ads", s.ads, { type: "number", scope: "settings", unit: "%", max: 99 })}`;
@@ -653,7 +710,7 @@ function download(content, name, type = "application/json") {
 function catalogEditor(id) {
   const p = id ? store.catalog.find((p) => p.id === id) : blankItem();
   showDialog(
-    `${modalHeader(id ? "Editar produto" : "Um novo produto para o catálogo", "Informe o lote de produção para calcular o custo de cada peça.")}<form id="catalog-form" data-id="${p.id}">${itemProductionFields(p)}<div class="form-grid">${field("Nome do produto", "name", p.name, { scope: p.id, required: true, wide: true })}${select("Material", "material", p.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], p.id)}${field("Cor / acabamento", "color", p.color, { scope: p.id })}${field("Peso de material informado", "grams", p.grams, { scope: p.id, type: "number", unit: "g", required: true })}${field("Tempo de impressão informado", "hours", p.hours, { scope: p.id, type: "number", unit: "horas", required: true })}${field("Preço do material", "filament", p.filament, { scope: p.id, type: "number", unit: "R$/kg", required: true })}${field("Preço fixo (opcional)", "price", p.price, { scope: p.id, type: "number", unit: "R$", placeholder: "Automático" })}${field("Tempo de acabamento informado", "minutes", p.minutes, { scope: p.id, type: "number", unit: "min" })}${field("Custos extras informados", "extra", p.extra, { scope: p.id, type: "number", unit: "R$" })}${field("Descrição da peça", "note", p.note, { scope: p.id, wide: true })}</div><div id="catalog-cost-preview" class="production-costs">${productionCosts(p, calculateItem(p, store.settings), false, true)}</div><div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancelar</button><button class="button primary" type="submit">${icon("save")} Salvar produto</button></div></form>`,
+    `${modalHeader(id ? "Editar produto" : "Um novo produto para o catálogo", "Informe o lote de produção para calcular o custo de cada peça.")}<form id="catalog-form" data-id="${p.id}">${photoEditor(p)}${itemProductionFields(p)}<div class="form-grid">${field("Nome do produto", "name", p.name, { scope: p.id, required: true, wide: true })}${select("Material", "material", p.material, ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "Resina", "Outro"], p.id)}${field("Cor / acabamento", "color", p.color, { scope: p.id })}${field("Peso de material informado", "grams", p.grams, { scope: p.id, type: "number", unit: "g", required: true })}${field("Tempo de impressão informado", "hours", p.hours, { scope: p.id, type: "number", unit: "horas", required: true })}${field("Preço do material", "filament", p.filament, { scope: p.id, type: "number", unit: "R$/kg", required: true })}${field("Preço fixo (opcional)", "price", p.price, { scope: p.id, type: "number", unit: "R$", placeholder: "Automático" })}${field("Tempo de acabamento informado", "minutes", p.minutes, { scope: p.id, type: "number", unit: "min" })}${field("Custos extras informados", "extra", p.extra, { scope: p.id, type: "number", unit: "R$" })}${field("Descrição da peça", "note", p.note, { scope: p.id, wide: true })}</div><div id="catalog-cost-preview" class="production-costs">${productionCosts(p, calculateItem(p, store.settings), false, true)}</div><div class="modal-actions"><button type="button" class="button secondary" data-action="close-modal">Cancelar</button><button class="button primary" type="submit">${icon("save")} Salvar produto</button></div></form>`,
   );
 }
 function confirmAction(title, description, action, id, label = "Confirmar") {
@@ -664,6 +721,12 @@ function confirmAction(title, description, action, id, label = "Confirmar") {
 const handlers = {
   navigate: (el) => navigate(el.dataset.view),
   "close-modal": () => modal.close(),
+  "image-choose": (el) => el.closest("form").querySelector('#product-image-file').click(),
+  "image-remove": (el) => {
+    const form = el.closest("form");
+    setEditorImage(form, "");
+    form.querySelector(".photo-status").textContent = "Imagem removida. Salve o produto para confirmar.";
+  },
   help: () =>
     showDialog(
       `${modalHeader("Do fatiador à proposta, em poucos passos.")}<ol class="help-list"><li><strong>Configure seu estúdio.</strong> Informe a marca, os custos e a forma de pagamento.</li><li><strong>Monte o orçamento.</strong> Preencha o cliente, escolha os produtos do catálogo e informe a quantidade solicitada. Dados do lote são definidos em Meus produtos.</li><li><strong>Confira os valores.</strong> Confira o preço unitário do cadastro para o tipo de cliente, o frete e o desconto.</li><li><strong>Compartilhe sua criação.</strong> Baixe a proposta HTML, copie o texto ou salve em PDF.</li></ol><p class="help-foot">O salvamento é local. Faça backup em Configurações. Nenhuma mensagem é enviada automaticamente.</p>`,
@@ -827,7 +890,7 @@ const handlers = {
   },
   "from-catalog": () =>
     showDialog(
-      `${modalHeader("Escolha uma criação do catálogo", "Os produtos serão adicionados ao orçamento atual.")}<div class="catalog-picker">${store.catalog.length ? store.catalog.map((p) => `<button data-action="catalog-add" data-id="${p.id}"><span>${icon("cube")}</span><div><strong>${e(p.name)}</strong><small>${e(p.material)} · ${money(calculateItem(p, store.settings, quote.customerType ?? "retail").unitPrice)} por unidade</small></div>${icon("plus")}</button>`).join("") : `<p>Seu catálogo ainda está vazio. Use “Salvar no catálogo” em um produto do orçamento ou cadastre uma peça.</p><button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`}</div>`,
+      `${modalHeader("Escolha uma criação do catálogo", "Os produtos serão adicionados ao orçamento atual.")}<div class="catalog-picker">${store.catalog.length ? store.catalog.map((p) => `<button data-action="catalog-add" data-id="${p.id}"><span class="catalog-picker-image">${p.image ? `<img src="${e(p.image)}" alt="Foto de ${e(p.name)}" class="product-photo">` : icon("cube")}</span><div><strong>${e(p.name)}</strong><small>${e(p.material)} · ${money(calculateItem(p, store.settings, quote.customerType ?? "retail").unitPrice)} por unidade</small></div>${icon("plus")}</button>`).join("") : `<p>Seu catálogo ainda está vazio. Use “Salvar no catálogo” em um produto do orçamento ou cadastre uma peça.</p><button class="button primary" data-action="catalog-new">${icon("plus")} Cadastrar produto</button>`}</div>`,
     ),
   "download-proposal": () => {
     download(
@@ -956,6 +1019,32 @@ document.addEventListener("input", (event) => {
 });
 document.addEventListener("change", async (event) => {
   const el = event.target;
+  if (el.id === "product-image-file") {
+    const form = el.closest("form");
+    const file = el.files[0];
+    if (!file) return;
+    const buttons = [...form.querySelectorAll('.photo-editor button, button[type="submit"]')];
+    buttons.forEach((button) => button.disabled = true);
+    el.disabled = true;
+    form.querySelector(".photo-status").textContent = "Preparando imagem…";
+    try {
+      const encoded = await prepareProductImage(file);
+      if (form.isConnected) {
+        setEditorImage(form, encoded);
+        form.querySelector(".photo-status").textContent = "Imagem pronta. Salve o produto para guardar a foto.";
+      }
+    } catch (error) {
+      if (form.isConnected) {
+        form.querySelector(".photo-status").textContent = error.message;
+        toast(error.message, true);
+      }
+    } finally {
+      buttons.forEach((button) => button.disabled = false);
+      el.disabled = false;
+      el.value = "";
+    }
+    return;
+  }
   if (el.id === "proposal-customer-type") {
     const previous = quote.customerType;
     quote.customerType = el.value;
